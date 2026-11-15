@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geminiでつくる アプリ開発の基本のき - 徳島生成AI部</title>
+  <style>
+    :root {
+      --navy-deep:   #07101F;
+      --navy:        #0D1B35;
+      --navy-card:   #112040;
+      --navy-light:  #1A2F55;
+      --orange:      #FF7B1C;
+      --orange-pale: #FF9B4E;
+      --orange-dim:  rgba(255,123,28,0.18);
+      --orange-dim2: rgba(255,123,28,0.08);
+      --white:       #FFFFFF;
+      --text-sub:    #A8C2E8;
+      --border:      rgba(255,123,28,0.22);
+      --border-dim:  rgba(255,255,255,0.08);
+      --radius:      14px;
+      --radius-sm:   8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100vh;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    /* ===================== MASCOT IMAGES ===================== */
+    .dog-img {
+      display: block;
+      width: 220px;
+      height: auto;
+      flex-shrink: 0;
+      mix-blend-mode: screen;
+      object-fit: contain;
+    }
+    .dog-img.lg { width: 280px; }
+    .dog-img.sm { width: 130px; }
+
+    /* ===================== HERO ===================== */
+    .hero {
+      background: linear-gradient(160deg, #07101F 0%, #0D1B35 50%, #0F2248 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 72px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(255,123,28,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .hero-dog-wrap {
+      display: inline-block;
+      margin-bottom: 16px;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+    .hero h1 {
+      font-size: clamp(34px, 6vw, 58px);
+      font-weight: 900;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .hero h1 .hi { color: var(--orange); }
+    .hero-sub {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--text-sub);
+      margin-bottom: 0;
+      font-weight: 400;
+    }
+
+    /* ===================== KEY POINT BANNER ===================== */
+    .key-banner {
+      background: var(--navy-deep);
+      border-bottom: 1px solid var(--border-dim);
+      padding: 40px 24px 48px;
+    }
+    .key-banner-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .key-banner-label {
+      display: inline-block;
+      background: var(--orange-dim);
+      border: 1px solid var(--border);
+      color: var(--orange-pale);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 4px 14px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .key-banner-title {
+      font-size: clamp(20px, 3.4vw, 30px);
+      font-weight: 900;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .key-banner-title .o { color: var(--orange); }
+    .key-term-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 16px;
+      text-align: left;
+    }
+    .key-term {
+      background: var(--navy-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+    }
+    .key-term-icon { font-size: 26px; margin-bottom: 10px; }
+    .key-term-name { font-weight: 800; font-size: 17px; color: var(--white); margin-bottom: 6px; }
+    .key-term-name .o { color: var(--orange); }
+    .key-term-desc { font-size: 14px; color: var(--text-sub); }
+
+    /* ===================== TAB NAV ===================== */
+    .tab-nav-wrap {
+      background: var(--navy-deep);
+      border-bottom: 1px solid var(--border-dim);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .tab-nav {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 16px;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 16px 22px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-sub);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: color 0.18s, border-color 0.18s;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+    .tab-btn:hover { color: var(--orange-pale); }
+    .tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+    /* ===================== CONTENT ===================== */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 52px 24px 80px;
+    }
+
+    /* ===================== SECTION HEADER ===================== */
+    .sec-tag {
+      display: inline-block;
+      background: var(--orange-dim);
+      border: 1px solid var(--border);
+      color: var(--orange-pale);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .sec-h2 {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .sec-h2 .o { color: var(--orange); }
+    .sec-lead {
+      font-size: 17px;
+      color: var(--text-sub);
+      margin-bottom: 40px;
+      max-width: 640px;
+    }
+
+    /* ===================== CARD ===================== */
+    .card {
+      background: var(--navy-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 20px;
+    }
+    .card-h {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-h .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+
+    /* ===================== STEP CARD ===================== */
+    .step-wrap { display: flex; flex-direction: column; gap: 16px; }
+    .step {
+      background: var(--navy-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      transition: border-color 0.18s;
+    }
+    .step:hover { border-color: var(--border); }
+    .step-num-badge {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--orange);
+      color: white;
+      font-size: 18px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-body { flex: 1; min-width: 0; }
+    .step-body h3 {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .step-body p { font-size: 15px; color: var(--text-sub); }
+
+    /* ===================== ANALOGY CARDS (家・住所・配達) ===================== */
+    .analogy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 16px;
+      margin: 24px 0 32px;
+    }
+    .analogy-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+    }
+    .analogy-icon { font-size: 34px; margin-bottom: 12px; }
+    .analogy-title { font-weight: 800; font-size: 16px; color: var(--white); margin-bottom: 4px; }
+    .analogy-sub { font-size: 12px; color: var(--orange-pale); font-weight: 700; margin-bottom: 10px; }
+    .analogy-desc { font-size: 14px; color: var(--text-sub); }
+
+    /* ===================== MERMAID WRAP ===================== */
+    .mermaid-wrap {
+      background: var(--navy-deep);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      padding: 20px;
+      overflow-x: auto;
+      margin: 12px 0 8px;
+    }
+    .mermaid-wrap svg { max-width: 100%; }
+
+    /* ===================== FOLDER DIAGRAM ===================== */
+    .folder-diagram {
+      background: var(--navy-deep);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      margin: 16px 0;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 15px;
+    }
+    .folder-root { font-weight: 800; color: var(--orange-pale); margin-bottom: 10px; }
+    .folder-item { padding: 6px 0 6px 28px; color: var(--white); border-left: 2px dashed var(--border-dim); margin-left: 8px; }
+    .folder-item:last-child { border-left: 2px dashed transparent; }
+
+    /* ===================== MOCKUP (画面イメージ) ===================== */
+    .mockup {
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 14px 0 8px;
+    }
+    .mockup-topbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 14px;
+      background: #151d30;
+      font-size: 12px;
+      color: var(--text-sub);
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .mockup-topbar .mockup-url { margin-left: 8px; }
+    .mockup-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .mockup-body { padding: 22px; overflow-x: auto; }
+    .mockup-caption { font-size: 12.5px; color: var(--text-sub); text-align: center; padding: 8px 14px 12px; background: var(--navy-deep); }
+    .mockup-caption strong { color: var(--orange-pale); }
+
+    .menu-mock-row { display: flex; gap: 8px; }
+    .menu-mock {
+      background: #20263a;
+      border: 1px solid var(--border-dim);
+      border-radius: 12px;
+      padding: 8px;
+      width: 220px;
+      flex-shrink: 0;
+      font-size: 13px;
+    }
+    .menu-mock-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--white);
+      white-space: nowrap;
+    }
+    .menu-mock-item.hl { background: var(--orange-dim); color: var(--orange-pale); font-weight: 700; }
+    .menu-mock-sep { height: 1px; background: var(--border-dim); margin: 6px 4px; }
+
+    .dl-mock-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+      background: #141b2c;
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+    .dl-mock-btn { background: var(--orange); color: white; padding: 6px 14px; border-radius: 8px; font-weight: 700; }
+
+    .explorer-mock-tabs {
+      display: flex;
+      gap: 20px;
+      padding: 10px 16px;
+      background: #e8e8e8;
+      color: #444;
+      font-size: 13px;
+      border-bottom: 1px solid #cfcfcf;
+    }
+    .explorer-mock-tabs .active { font-weight: 800; color: #c25a00; border-bottom: 2px solid #FF7B1C; padding-bottom: 8px; }
+    .explorer-mock-row { display: flex; gap: 24px; padding: 14px 16px; background: #f7f7f7; color: #333; font-size: 13px; }
+    .explorer-mock-check { display: flex; align-items: center; gap: 7px; }
+    .explorer-mock-box { width: 14px; height: 14px; border: 1.5px solid #999; background: #fff; display: inline-block; border-radius: 2px; }
+    .explorer-mock-check.hl { background: var(--orange-dim); padding: 4px 10px; border-radius: 6px; }
+    .explorer-mock-check.hl .explorer-mock-box { background: #FF7B1C; border-color: #FF7B1C; }
+
+    .drop-mock-zone {
+      border: 2px dashed #bbb;
+      border-radius: 14px;
+      padding: 34px 30px;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    /* ===================== TABLE ===================== */
+    .tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+    .tbl th {
+      background: var(--navy-deep);
+      padding: 12px 18px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .tbl td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-dim);
+      color: var(--white);
+      vertical-align: middle;
+    }
+    .tbl tr:last-child td { border-bottom: none; }
+
+    /* ===================== CODE / PROMPT ===================== */
+    .code-block {
+      background: var(--navy-deep);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 18px 22px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 14px;
+      color: var(--orange-pale);
+      line-height: 1.8;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    .prompt-box {
+      background: var(--navy-deep);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 22px 26px;
+      position: relative;
+      margin: 12px 0;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .prompt-box p {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13.5px;
+      line-height: 1.9;
+      color: #D0E8FF;
+      white-space: pre-wrap;
+    }
+    .prompt-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .prompt-label-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--orange-pale);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: var(--orange-dim);
+      border: 1px solid var(--border);
+      color: var(--orange-pale);
+      padding: 4px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: rgba(255,123,28,0.3); }
+
+    /* ===================== PROMPT TABS (ひな形4種) ===================== */
+    .prompt-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .prompt-tab-btn {
+      background: var(--navy-deep);
+      border: 1px solid var(--border-dim);
+      color: var(--text-sub);
+      padding: 10px 18px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .prompt-tab-btn:hover { border-color: var(--border); color: var(--orange-pale); }
+    .prompt-tab-btn.active { background: var(--orange); border-color: var(--orange); color: white; }
+    .prompt-tab-content { display: none; }
+    .prompt-tab-content.active { display: block; }
+
+    /* ===================== INFO / WARN BOX ===================== */
+    .info-box {
+      display: flex;
+      gap: 12px;
+      background: var(--orange-dim2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-size: 14px;
+      color: var(--text-sub);
+      margin: 14px 0;
+      line-height: 1.65;
+    }
+    .warn-box {
+      display: flex;
+      gap: 12px;
+      background: rgba(255,200,0,0.07);
+      border: 1px solid rgba(255,200,0,0.25);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-size: 14px;
+      color: #FFD060;
+      margin: 14px 0;
+      line-height: 1.65;
+    }
+
+    /* ===================== CHECKLIST ===================== */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border-dim);
+      font-size: 15px;
+      color: var(--text-sub);
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist li::before {
+      content: '';
+      width: 20px; height: 20px;
+      min-width: 20px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      margin-top: 2px;
+    }
+
+    /* ===================== TROUBLE / FAQ ===================== */
+    .trouble-item {
+      background: var(--navy-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .tr-icon { font-size: 28px; }
+    .tr-q { font-weight: 800; font-size: 17px; color: var(--white); margin-bottom: 10px; }
+    .tr-a { font-size: 15px; color: var(--text-sub); line-height: 1.75; }
+
+    .faq-item {
+      background: var(--navy-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .faq-btn {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 20px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background 0.15s;
+    }
+    .faq-btn:hover { background: var(--navy-light); }
+    .faq-q-badge {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: var(--orange);
+      color: white;
+      font-size: 14px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .faq-arrow { margin-left: auto; color: var(--text-sub); transition: transform 0.2s; font-size: 13px; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-answer { display: none; padding: 0 24px 22px 68px; font-size: 15px; color: var(--text-sub); line-height: 1.75; }
+    .faq-item.open .faq-answer { display: block; }
+
+    /* ===================== SECTION WITH MASCOT ===================== */
+    .dog-section {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 36px;
+    }
+    .dog-section-text { flex: 1; }
+    @media (max-width: 580px) {
+      .dog-section { flex-direction: column; text-align: center; }
+    }
+
+    /* ===================== NOTICE CARD ===================== */
+    .notice {
+      background: linear-gradient(135deg, var(--navy-deep), var(--navy-card));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-top: 32px;
+    }
+    .notice p { font-size: 15px; color: var(--text-sub); line-height: 1.7; }
+    .notice strong { color: var(--white); }
+
+    /* ===================== FOOTER ===================== */
+    footer {
+      background: var(--navy-deep);
+      border-top: 1px solid var(--border-dim);
+      text-align: center;
+      padding: 36px 24px;
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+    footer a { color: var(--orange-pale); text-decoration: none; }
+
+    /* ===================== GLOSSARY LINK (本文中の用語ジャンプ) ===================== */
+    .glossary-link {
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+    .glossary-link:hover { color: var(--orange-pale); }
+
+    /* ===================== HOUSE ILLUSTRATION (HTML/CSS/JS図解) ===================== */
+    .house-illustration {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      margin: 8px 0 4px;
+    }
+    .house-shape { flex-shrink: 0; width: 180px; }
+    .house-roof-wrap { position: relative; width: 180px; height: 56px; }
+    .house-roof {
+      position: absolute;
+      top: 0; left: 0;
+      width: 0; height: 0;
+      border-left: 90px solid transparent;
+      border-right: 90px solid transparent;
+      border-bottom: 56px solid var(--orange);
+    }
+    .house-roof-icon {
+      position: absolute;
+      bottom: 8px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 22px;
+      filter: drop-shadow(0 0 6px rgba(255,208,96,0.85));
+    }
+    .house-body { width: 180px; }
+    .house-layer {
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--orange-pale);
+      border-left: 2px solid var(--border-dim);
+      border-right: 2px solid var(--border-dim);
+    }
+    .house-layer.css-layer {
+      border-top: 2px solid var(--border-dim);
+      background: repeating-linear-gradient(135deg, var(--navy-light), var(--navy-light) 10px, var(--navy-card) 10px, var(--navy-card) 20px);
+    }
+    .house-layer.html-layer {
+      border-bottom: 2px solid var(--border-dim);
+      border-radius: 0 0 6px 6px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background:
+        repeating-linear-gradient(0deg, var(--navy-deep), var(--navy-deep) 18px, var(--navy-card) 18px, var(--navy-card) 20px),
+        repeating-linear-gradient(90deg, var(--navy-deep), var(--navy-deep) 18px, var(--navy-card) 18px, var(--navy-card) 20px);
+    }
+    .house-labels { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+    .house-label { font-size: 15px; color: var(--text-sub); line-height: 1.6; }
+    .house-label .term { color: var(--white); font-weight: 800; }
+    .house-label .term.o { color: var(--orange); }
+    @media (max-width: 640px) {
+      .house-illustration { flex-direction: column; text-align: center; }
+      .house-labels { align-items: center; }
+    }
+
+    /* ===================== GLOSSARY CARD ===================== */
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .glossary-card {
+      position: relative;
+      background: var(--navy-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius);
+      padding: 26px 24px 22px;
+    }
+    .glossary-card.key { border-color: var(--border); }
+    .glossary-key-badge {
+      position: absolute;
+      top: -12px; right: 16px;
+      background: var(--orange);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      padding: 4px 12px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .glossary-term { font-size: 21px; font-weight: 900; color: var(--white); margin-bottom: 8px; }
+    .glossary-oneliner { font-size: 14.5px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.65; }
+    .glossary-analogy {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--navy-deep);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: var(--orange-pale);
+    }
+    .glossary-analogy .icon { font-size: 19px; flex-shrink: 0; }
+    .glossary-card.flash { animation: glossaryFlash 1.6s ease; }
+    @keyframes glossaryFlash {
+      0%   { box-shadow: 0 0 0 3px var(--orange); background: var(--orange-dim2); }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 600px) {
+      .tab-btn { font-size: 14px; padding: 14px 16px; }
+      .page { padding: 32px 16px 60px; }
+      .card, .step, .analogy-card { padding: 18px 20px; }
+      body { font-size: 17px; }
+    }
+  
+    /* ===================== このガイド用の追加 ===================== */
+    .link-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+    .link-row.left { justify-content: flex-start; margin-top: 16px; }
+    .link-row a {
+      display: inline-block; background: var(--orange); color: white; font-weight: 800;
+      font-size: 15px; padding: 12px 22px; border-radius: 100px; text-decoration: none;
+    }
+    .link-row a:not(:first-child) { background: none; border: 1px solid var(--border); color: var(--orange-pale); }
+    .body-p { font-size: 15px; color: var(--text-sub); }
+    .body-p strong { color: var(--white); }
+    .tbl td strong { color: var(--orange-pale); }
+    .card { overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero">
+  <div class="hero-content">
+    <div class="hero-dog-wrap">
+      <img src="potz1.png" class="dog-img lg" alt="マスコットキャラクター" />
+    </div>
+    <h1>Geminiでつくる<br>アプリ開発の<br><span class="hi">基本のき</span></h1>
+    <p class="hero-sub">見本のメモアプリを例に、「作る・試す・公開する」の流れをやさしく解説。<br>講義のあと、自分で試せるプロンプトと資料つきです。</p>
+    <div class="link-row">
+      <a href="sample/" target="_blank" rel="noopener">見本アプリを開く</a>
+      <a href="sample/index.html" download="index.html">見本のソースコードをダウンロード</a>
+      <a href="slides/" target="_blank" rel="noopener">講座スライドを見る</a>
+    </div>
+  </div>
+  </div>
+</header>
+
+<!-- ===================== KEY POINT BANNER ===================== -->
+<section class="key-banner">
+  <div class="key-banner-inner">
+    <div class="key-banner-label">これだけは覚えて</div>
+    <p class="key-banner-title">
+      <span class="o">作る場所・試す場所・公開する場所</span>を分ける。<br>
+      これが、アプリ作りのいちばんの基本です。
+    </p>
+    <div class="key-term-grid">
+      <div class="key-term">
+        <div class="key-term-icon">☁️</div>
+        <div class="key-term-name"><span class="o">クラウド</span> ＝ ネット上</div>
+        <div class="key-term-desc">Geminiで作る場所も、Netlifyで公開する場所も、ネットの向こう側にあります。</div>
+      </div>
+      <div class="key-term">
+        <div class="key-term-icon">💻</div>
+        <div class="key-term-name"><span class="o">ローカル</span> ＝ 自分のパソコン</div>
+        <div class="key-term-desc">ダウンロードしたファイルを開いて、動くか試す場所。まだ誰にも見えません。</div>
+      </div>
+      <div class="key-term">
+        <div class="key-term-icon">🚀</div>
+        <div class="key-term-name"><span class="o">デプロイ</span> ＝ 公開すること</div>
+        <div class="key-term-desc">試してOKだったファイルをネットに置き、URLで開けるようにすること。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TAB NAV ===================== -->
+<nav class="tab-nav-wrap">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('step1', this)">１ 仕組み</button>
+    <button class="tab-btn"        onclick="switchTab('step2', this)">２ 仕様書</button>
+    <button class="tab-btn"        onclick="switchTab('step3', this)">３ 作る</button>
+    <button class="tab-btn"        onclick="switchTab('step4', this)">４ 試す</button>
+    <button class="tab-btn"        onclick="switchTab('step5', this)">５ 公開する</button>
+    <button class="tab-btn"        onclick="switchTab('check', this)">チェックリスト</button>
+    <button class="tab-btn"        onclick="switchTab('qa',    this)">Q&amp;A</button>
+    <button class="tab-btn" id="navGlossaryBtn" onclick="switchTab('glossary', this)">用語集</button>
+  </div>
+</nav>
+
+<!-- ===================== STEP 1 仕組み ===================== -->
+<div id="step1" class="tab-content active">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz4.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">STEP 1</div>
+        <h2 class="sec-h2">アプリの<span class="o">仕組み</span></h2>
+        <p class="sec-lead">どんなアプリも、3つの部品の組み合わせです。見本の「ちょこっとメモ」を分解してみましょう。</p>
+      </div>
+    </div>
+
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="analogy-icon">📱</div>
+        <div class="analogy-title">画面</div>
+        <div class="analogy-sub">＝ 見えるところ</div>
+        <div class="analogy-desc">メモを書く欄、追加ボタン、メモの一覧。</div>
+      </div>
+      <div class="analogy-card">
+        <div class="analogy-icon">⚙️</div>
+        <div class="analogy-title">処理</div>
+        <div class="analogy-sub">＝ 動くところ</div>
+        <div class="analogy-desc">追加を押したら記録する。急ぎ順に並べ替える。削除する。</div>
+      </div>
+      <div class="analogy-card">
+        <div class="analogy-icon">🗄️</div>
+        <div class="analogy-title">データ</div>
+        <div class="analogy-sub">＝ 残るところ</div>
+        <div class="analogy-desc">書いたメモそのもの。しまっておく場所が必要です。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>全体の流れ（作る → 試す → 公開する）</div>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+flowchart TB
+  subgraph A["① 作る｜クラウド（ネット上）"]
+    G["Geminiにお願いする<br/>「メモアプリを作って」"]
+  end
+  subgraph B["② 試す｜ローカル（自分のパソコン）"]
+    H["index.html をダウンロード"]
+    L["ブラウザで開いて動きを確かめる<br/>この段階では、まだ誰にも見えない"]
+    H --> L
+  end
+  subgraph C["③ 公開する｜クラウド（ネット上）"]
+    N["Netlify Dropにフォルダを置く"]
+    U["URL（アプリの住所）がもらえる"]
+    N --> U
+  end
+  subgraph D["④ 使う｜スマホ"]
+    V["URLを開く"]
+    W["ホーム画面に追加して使う"]
+    V --> W
+  end
+  G -->|"ダウンロード"| H
+  L -->|"OKだったらフォルダごとドラッグ"| N
+  U -->|"URLを自分に送る"| V
+        </pre>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <span style="font-size:18px;flex-shrink:0">💡</span>
+      <span>作る場所と公開する場所が同じ道具もありますが、<strong>直している途中のものが公開されてしまう</strong>ことがあります。場所を分けておけば、自分でドラッグするまで公開されません。</span>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>メモはどこに保存される？（<span class="glossary-link" onclick="goToGlossary('localstorage')">ローカルストレージ</span>）</div>
+      <p class="body-p">メモは、スマホやパソコン本体の中にある<strong>ブラウザ専用の「引き出し」</strong>に保存されます。ネット上ではありません。</p>
+      <table class="tbl" style="margin-top:14px">
+        <tr><th>知りたいこと</th><th>答え</th></tr>
+        <tr><td>どこにある？</td><td>端末本体の保存領域。写真やアプリと同じ場所です。</td></tr>
+        <tr><td>なぜ消えない？</td><td>画面に出ているだけでなく、本体に書き込んで残すからです。電源を切っても残ります。</td></tr>
+        <tr><td>だれの引き出し？</td><td>URL（サイト）ごとに別々。ほかのサイトからはのぞけません。</td></tr>
+        <tr><td>ほかの人に見える？</td><td>見えません。アプリのURLは誰でも開けますが、メモは各自の端末の中です。</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>メモが消えるのは、どんなとき？</div>
+      <table class="tbl">
+        <tr><th>こんなとき</th><th>メモは</th></tr>
+        <tr><td>アプリやブラウザを閉じる、電源を切る</td><td>残る</td></tr>
+        <tr><td>「閲覧履歴」だけを消す</td><td>残る</td></tr>
+        <tr><td>「Cookieとサイトデータ」を消す</td><td><strong>消える</strong></td></tr>
+        <tr><td>iPhoneの「履歴とWebサイトデータを消去」</td><td><strong>消える</strong>（両方まとめて消えます）</td></tr>
+        <tr><td>シークレットモードで使う</td><td>閉じると消える</td></tr>
+        <tr><td>別のブラウザ、別のスマホで開く</td><td>見えない（別の引き出しを見ています）</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>ふつうのアプリは<span class="glossary-link" onclick="goToGlossary('database')">データベース</span>を使う</div>
+      <p class="body-p">本来、データはネット上のデータベースに保管するのが基本です。今回のメモアプリは「自分ひとり・1台」で使うので、いちばん簡単なローカルストレージを選びました。</p>
+      <table class="tbl" style="margin-top:14px">
+        <tr><th></th><th>ローカルストレージ</th><th>データベース</th></tr>
+        <tr><td>保存場所</td><td>端末の中</td><td>ネット上</td></tr>
+        <tr><td>向いている場面</td><td>自分ひとり、1台で使う</td><td>複数の端末、共有、ログイン</td></tr>
+        <tr><td>準備</td><td>なし、無料</td><td>サービスを借りて作る（Firebase、Supabaseなど）</td></tr>
+        <tr><td>例</td><td>メモ帳、電卓、ToDo</td><td>LINE、通販、予約アプリ</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== STEP 2 仕様書 ===================== -->
+<div id="step2" class="tab-content">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz3.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">STEP 2</div>
+        <h2 class="sec-h2"><span class="o glossary-link" onclick="goToGlossary('spec')">仕様書</span>を作る</h2>
+        <p class="sec-lead">仕様書は「何を作るか」を決めたメモです。ないと、AIは毎回ちがうものを作ります。まずは4行で十分です。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>4行版（見本アプリ「ちょこっとメモ」の場合）</div>
+      <table class="tbl">
+        <tr><th>決めること</th><th>ちょこっとメモの場合</th></tr>
+        <tr><td>誰が</td><td>スマホに慣れていないシニア（自分や家族）</td></tr>
+        <tr><td>何のために</td><td>買い物や「今日やること」を、紙のメモ代わりにさっと書く</td></tr>
+        <tr><td>できること</td><td>一言メモを追加する、急ぎ度をつける、並べ替える、済んだら消す</td></tr>
+        <tr><td>やらないこと</td><td>ログイン、共有、メモの修正、日付の表示、写真</td></tr>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <span style="font-size:18px;flex-shrink:0">💡</span>
+      <span><strong>「やらないこと」を決めるのがコツ</strong>です。共有とログインをやらないと決めたから、データベースなしで作れます。メモの修正をやらないと決めたから、画面が1つで済んでいます。</span>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>くわしい版（AIに渡す用）</div>
+      <div class="step-wrap" style="margin-top:8px">
+        <div class="step">
+          <div class="step-num-badge">1</div>
+          <div class="step-body">
+            <h3>画面</h3>
+            <p>画面は1つだけ。上から、アプリ名、入力欄、急ぎ度の選択、追加ボタン、並べ替えボタン2つ、メモ一覧の順に並ぶ。文字とボタンは大きめにし、スマホの縦画面で使いやすくする。色はやさしいオレンジ系、アプリ名は紺色。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-badge">2</div>
+          <div class="step-body">
+            <h3>処理</h3>
+            <p>追加：入力欄の文字を、選んだ急ぎ度（高・中・低、最初は中）と一緒に登録し、入力欄を空にする。空のまま追加を押しても何もしない。新しいメモは一覧のいちばん上に出す。<br>「入力順」：新しいメモが上に来るよう並べ替える。「急ぎ順」：急ぎ度の高いメモが上に来るよう並べ替える。<br>各メモに「削除」ボタンを付け、押したらそのメモだけ消す。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-badge">3</div>
+          <div class="step-body">
+            <h3>データ</h3>
+            <p>保存先はローカルストレージ（端末の中）。メモ1件につき、内容・急ぎ度・登録日時の3項目を持つ。登録日時は画面には出さず、並べ替えにだけ使う。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-badge">4</div>
+          <div class="step-body">
+            <h3>決まりごと</h3>
+            <p>ファイルは index.html 1枚だけ。画像や外部の部品は使わない。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>自分のアプリの仕様書を、AIと一緒に作る<span class="glossary-link" onclick="goToGlossary('prompt')">プロンプト</span></div>
+      <div class="prompt-header">
+        <span class="prompt-label-tag">仕様書づくり</span>
+        <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+      </div>
+      <div class="prompt-box"><p>私はプログラミング初心者です。作りたいアプリは「【例：スマホで使うメモアプリ】」です。
+仕様書を作りたいので、私に1問ずつ質問してください。
+質問は全部で5問まで、専門用語は使わないでください。
+最後に「誰が・何のために・できること・やらないこと」の形でまとめてください。</p></div>
+      <p class="body-p">自分で書かなくて大丈夫です。AIの質問に答えていくと、4行の仕様書ができあがります。</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== STEP 3 作る ===================== -->
+<div id="step3" class="tab-content">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz3.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">STEP 3</div>
+        <h2 class="sec-h2"><span class="o glossary-link" onclick="goToGlossary('genai')">AI</span>で作る（<span class="glossary-link" onclick="goToGlossary('gemini')">Gemini</span> <span class="glossary-link" onclick="goToGlossary('canvas')">Canvas</span>）</h2>
+        <p class="sec-lead">下のプロンプトの【　】を3か所書き換えるだけ。自分専用のメモアプリができます。ここは「作る場所」、クラウドです。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>まず見本をさわってみる</div>
+      <p class="body-p">講師が実際にスマホで使っているメモアプリ「ちょこっとメモ」です。これと同じ動きのアプリを、自分の名前と色で作ります。</p>
+      <div class="link-row left">
+        <a href="sample/" target="_blank" rel="noopener">見本アプリを開く</a>
+        <a href="sample/index.html" download="index.html">見本のソースコード（index.html）をダウンロード</a>
+      </div>
+    </div>
+
+    <div class="step-wrap" style="margin-bottom:32px">
+      <div class="step">
+        <div class="step-num-badge">1</div>
+        <div class="step-body">
+          <h3>gemini.google.com を開きログイン</h3>
+          <p>お使いのGoogleアカウントでログインしてください。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">2</div>
+        <div class="step-body">
+          <h3>「ツール」→「Canvas」を選ぶ</h3>
+          <p>入力欄の左にある「＋」ボタン→「その他のツール」→「Canvas」の順にクリックします。</p>
+          <div class="mockup">
+            <div class="mockup-topbar">
+              <span class="mockup-dot" style="background:#ff5f57"></span>
+              <span class="mockup-dot" style="background:#febc2e"></span>
+              <span class="mockup-dot" style="background:#28c840"></span>
+              <span class="mockup-url">gemini.google.com</span>
+            </div>
+            <div class="mockup-body" style="background:#0b1526">
+              <div class="menu-mock-row">
+                <div class="menu-mock">
+                  <div class="menu-mock-item">📎 ファイルをアップロード</div>
+                  <div class="menu-mock-item">☁️ ドライブから追加</div>
+                  <div class="menu-mock-item">︙ その他のアップロード</div>
+                  <div class="menu-mock-sep"></div>
+                  <div class="menu-mock-item">📊 画像を作成</div>
+                  <div class="menu-mock-item">🎬 動画を作成</div>
+                  <div class="menu-mock-item hl">︙ その他のツール ›</div>
+                </div>
+                <div class="menu-mock">
+                  <div class="menu-mock-item">🎵 音楽を作成</div>
+                  <div class="menu-mock-item hl">🧩 Canvas ← ここ！</div>
+                  <div class="menu-mock-item">🔎 Deep Research</div>
+                  <div class="menu-mock-item">🎓 ガイド付き学習</div>
+                </div>
+              </div>
+            </div>
+            <div class="mockup-caption">「＋」→「その他のツール」→<strong>「Canvas」</strong>の順にクリック（画面イメージ）</div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">3</div>
+        <div class="step-body">
+          <h3>下の<span class="glossary-link" onclick="goToGlossary('template')">雛形</span>プロンプトの【　】を書き換えて貼り付け、送信</h3>
+          <p>書き換えるのは「アプリ名」「色や雰囲気」「タブに出る名前」の3か所だけです。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">4</div>
+        <div class="step-body">
+          <h3>右側のプレビューでメモを1件追加してみる</h3>
+          <p>追加、並べ替え、削除が動くか、その場で確かめられます。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">5</div>
+        <div class="step-body">
+          <h3>手直しは普通の言葉で1つずつ</h3>
+          <p>例：「ボタンをもっと大きくして」「色を青系にして」など、一度に1つだけお願いすると失敗しにくいです。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>プロンプト（コピーして使ってください）</div>
+      <div class="prompt-tabs">
+        <button class="prompt-tab-btn active" onclick="switchPromptTab('pt1', this)">① 自分専用メモアプリ</button>
+        <button class="prompt-tab-btn" onclick="switchPromptTab('pt2', this)">② 見た目だけ変える</button>
+        <button class="prompt-tab-btn" onclick="switchPromptTab('pt3', this)">③ 困ったとき</button>
+      </div>
+
+      <div id="pt1" class="prompt-tab-content active">
+        <div class="prompt-header">
+          <span class="prompt-label-tag">① 自分専用メモアプリを作る</span>
+          <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+        </div>
+        <div class="prompt-box"><p>スマホで使うメモアプリを作ってください。
+
+■ 自分専用にしたいところ
+・アプリ名：【例：はなこの買い物メモ】
+・色や雰囲気：【例：やさしい緑色、落ち着いた感じ】
+・ブラウザのタブに出る名前：【例：メモ】
+
+■ 画面（1つだけ）
+上から順に、アプリ名、メモの入力欄、急ぎ度の選択（高・中・低、最初は中）、
+追加ボタン、「入力順」「急ぎ順」の並べ替えボタン、メモの一覧を並べる。
+文字とボタンは大きめにして、スマホの縦画面で使いやすくする。
+
+■ できること
+・入力欄の文字を、急ぎ度と一緒にメモとして追加する。追加したら入力欄を空にする
+・何も書かずに追加を押したときは、何もしない
+・新しいメモは一覧のいちばん上に出す
+・「入力順」を押すと、新しいメモが上に来るように並べ替える
+・「急ぎ順」を押すと、急ぎ度が高いメモが上に来るように並べ替える
+・メモごとに「削除」ボタンを付け、押したらそのメモだけを消す
+
+■ データ
+・メモはローカルストレージに保存し、次に開いたときも残っているようにする
+・メモ1件につき、内容・急ぎ度・登録日時を保存する。登録日時は画面に出さない
+
+■ 決まりごと
+・index.html という1つのファイルだけで動くこと
+・画像や外部の部品（ライブラリ）は使わない
+・ログイン、共有、メモの修正機能は付けない
+
+作ったあと、使い方を3行で教えてください。</p></div>
+        <p class="body-p">「■ 画面」「■ できること」「■ データ」は、STEP 1の3つの部品と同じ並びです。仕様書がそのままプロンプトになっています。</p>
+      </div>
+
+      <div id="pt2" class="prompt-tab-content">
+        <div class="prompt-header">
+          <span class="prompt-label-tag">② 作ったあとに見た目だけ変える</span>
+          <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+        </div>
+        <div class="prompt-box"><p>機能はそのままで、見た目だけ変えてください：【例：ボタンをもっと大きく、色を青系に】
+変更後の index.html を全部見せてください。</p></div>
+      </div>
+
+      <div id="pt3" class="prompt-tab-content">
+        <div class="prompt-header">
+          <span class="prompt-label-tag">③ 困ったとき</span>
+          <button class="copy-btn" onclick="copyPrompt(this)">コピー</button>
+        </div>
+        <div class="prompt-box"><p>次の言葉（またはエラー）の意味がわかりません：「【ここに貼る】」
+小学生にもわかるように説明して、
+私が次にやることを1つだけ教えてください。</p></div>
+        <p class="body-p">エラーは失敗ではありません。そのまま貼れば、AIが一緒に直してくれます。</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== STEP 4 試す ===================== -->
+<div id="step4" class="tab-content">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz5.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">STEP 4</div>
+        <h2 class="sec-h2">手元で<span class="o">試す</span></h2>
+        <p class="sec-lead">作ったファイルを自分のパソコンに<span class="glossary-link" onclick="goToGlossary('download')">ダウンロード</span>して、動くか確かめます。ここは「試す場所」、ローカルです。まだ誰にも見えていません。</p>
+      </div>
+    </div>
+
+    <div class="step-wrap" style="margin:20px 0 28px">
+      <div class="step">
+        <div class="step-num-badge">1</div>
+        <div class="step-body">
+          <h3>デスクトップに「memo」<span class="glossary-link" onclick="goToGlossary('folder')">フォルダ</span>を作る</h3>
+          <p>右クリック→「新規作成」→「フォルダー」（Macは「新規フォルダ」）で作り、名前を memo にします。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">2</div>
+        <div class="step-body">
+          <h3>Canvasの「ダウンロード」ボタンで保存する</h3>
+          <p>Canvas右上のダウンロードボタンを押し、保存したファイルを「memo」フォルダに入れます。ファイル名が <strong>index.html</strong> になっていることを確認してください。</p>
+          <div class="mockup">
+            <div class="mockup-body" style="background:#0b1526">
+              <div class="dl-mock-bar"><span>コード</span><span>プレビュー</span><span class="dl-mock-btn">⬇ ダウンロード</span></div>
+            </div>
+            <div class="mockup-caption">Canvas右上の <strong>⬇ ダウンロード</strong> ボタンをクリック（画面イメージ）</div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">3</div>
+        <div class="step-body">
+          <h3>index.html をダブルクリック</h3>
+          <p><span class="glossary-link" onclick="goToGlossary('browser')">ブラウザ</span>でアプリが開きます。メモを追加し、並べ替え、削除を試します。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">4</div>
+        <div class="step-body">
+          <h3>ブラウザを閉じて、もう一度開く</h3>
+          <p><strong>メモが残っていれば成功</strong>です。ローカルストレージに保存できています。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>フォルダの中身（完成イメージ）</div>
+      <div class="folder-diagram">
+        <div class="folder-root">📁 memo</div>
+        <div class="folder-item">📄 <span class="glossary-link" onclick="goToGlossary('indexhtml')">index.html</span></div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span style="flex-shrink:0">⚠️</span>
+      <span>ここで試しに書いたメモは、公開したあとのアプリには出てきません。<strong>URLが違うと「別の引き出し」</strong>になるからです。故障ではありません。</span>
+    </div>
+
+    <div class="info-box">
+      <span style="font-size:18px;flex-shrink:0">💡</span>
+      <span>うまく動かないところがあれば、公開する前にGeminiに戻って直します。<strong>OKになったものだけを公開する</strong>のが基本です。</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== STEP 5 公開する ===================== -->
+<div id="step5" class="tab-content">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz2.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">STEP 5</div>
+        <h2 class="sec-h2"><span class="o glossary-link" onclick="goToGlossary('deploy')">公開する</span>（Netlify Drop）</h2>
+        <p class="sec-lead">フォルダをドラッグするだけで、スマホから開けるアプリになります。ここは「公開する場所」、クラウドです。</p>
+      </div>
+    </div>
+
+    <div class="step-wrap" style="margin-bottom:24px">
+      <div class="step">
+        <div class="step-num-badge">1</div>
+        <div class="step-body">
+          <h3><span class="glossary-link" onclick="goToGlossary('netlify')">Netlify Drop</span>を開く</h3>
+          <div class="code-block">https://app.netlify.com/drop</div>
+          <p>無料の登録をしてログインしておくと、アプリが自分のものとして残ります。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">2</div>
+        <div class="step-body">
+          <h3>「memo」フォルダをまるごとドラッグ</h3>
+          <p>画面の点線の枠の中に、フォルダごとドロップします。</p>
+          <div class="mockup">
+            <div class="mockup-topbar">
+              <span class="mockup-dot" style="background:#ff5f57"></span>
+              <span class="mockup-dot" style="background:#febc2e"></span>
+              <span class="mockup-dot" style="background:#28c840"></span>
+              <span class="mockup-url">app.netlify.com/drop</span>
+            </div>
+            <div class="mockup-body" style="background:#fff;display:flex;justify-content:center">
+              <div class="drop-mock-zone">📁<br>ここに「memo」フォルダを<br>ドラッグ＆ドロップ</div>
+            </div>
+            <div class="mockup-caption">点線の枠に <strong>memoフォルダごと</strong> ドロップ（画面イメージ）</div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">3</div>
+        <div class="step-body">
+          <h3>表示された<span class="glossary-link" onclick="goToGlossary('url')">URL</span>を確認する</h3>
+          <p>「〇〇.netlify.app」という住所が表示されます。これがあなたのアプリのURLです。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">4</div>
+        <div class="step-body">
+          <h3>URLをスマホに送って開く</h3>
+          <p>LINEやメールで自分あてにURLを送り、スマホで開きます。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num-badge">5</div>
+        <div class="step-body">
+          <h3><span class="glossary-link" onclick="goToGlossary('homescreen')">ホーム画面に追加</span>する</h3>
+          <p><strong>iPhone（Safari）</strong>：画面下の共有ボタン（□に↑）→「ホーム画面に追加」。<br><strong>Android（Chrome）</strong>：右上の「︙」→「ホーム画面に追加」。<br>次からは、アイコンを押すだけで開けます。<strong>メモはホーム画面に追加してから書き始めてください。</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>長く使うための3つの約束</div>
+      <table class="tbl">
+        <tr><th>約束</th><th>理由</th></tr>
+        <tr><td>ホーム画面に追加して使う</td><td>アイコンから開くのが基本。iPhoneでは、長く開かないサイトのデータが消えることがあります。</td></tr>
+        <tr><td>URL（サイト名）は変えない</td><td>URLが変わると別の引き出しになり、メモが見えなくなります。</td></tr>
+        <tr><td>大事なメモは別にも残す</td><td>メモは端末の中だけ。機種変更では引き継がれません。</td></tr>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <span style="font-size:18px;flex-shrink:0">💡</span>
+      <span>かかるお金は0円です。Netlifyの無料プランには月ごとの更新回数の上限がありますが、個人のメモアプリなら十分です。</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== CHECKLIST ===================== -->
+<div id="check" class="tab-content">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz1.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">CHECK</div>
+        <h2 class="sec-h2">最終<span class="o">チェックリスト</span></h2>
+        <p class="sec-lead">すべてにチェックがついたら、あなた専用のメモアプリは完成です。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>完成チェックリスト</div>
+      <ul class="checklist">
+        <li>仕様書：誰が・何のために・できること・やらないこと を4行で言える</li>
+        <li>作る：Gemini Canvasでメモアプリができた</li>
+        <li>試す：index.html をダウンロードし、自分のパソコンで動きを確かめた</li>
+        <li>公開：Netlify Dropに置き、URLが表示された</li>
+        <li>スマホ：URLを開き、ホーム画面に追加できた</li>
+        <li>保存：アプリを閉じて開き直しても、メモが残っていた</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>修正・更新するときの流れ</div>
+      <div class="step-wrap" style="margin-top:8px">
+        <div class="step">
+          <div class="step-num-badge">1</div>
+          <div class="step-body">
+            <h3>作る場所（Gemini）で直す</h3>
+            <p>例：「文字を大きくして」など、1つずつお願いします。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-badge">2</div>
+          <div class="step-body">
+            <h3>試す場所（自分のパソコン）で確かめる</h3>
+            <p>修正版をダウンロードし、「memo」フォルダの index.html と置き換えて、開いて確かめます。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num-badge">3</div>
+          <div class="step-body">
+            <h3>公開する場所（Netlify）に置き直す</h3>
+            <p>Netlifyにログインし、自分のサイトの画面に「memo」フォルダをもう一度ドラッグします。<strong>同じURLのまま</strong>更新されるので、スマホのメモは残ります。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== Q&A ===================== -->
+<div id="qa" class="tab-content">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz3.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">Q&amp;A</div>
+        <h2 class="sec-h2">よくある<span class="o">疑問とトラブル</span></h2>
+        <p class="sec-lead">困ったら、まずここを確認してください。</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>履歴を消したら、メモも消えますか？
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">消すときに選ぶ項目で決まります。<br><br><strong>「閲覧履歴」だけ</strong>を消す場合は、メモは残ります。履歴は「見たページの記録」で、メモとは別物です。<br><br><strong>「Cookieとサイトデータ」</strong>を消すと、メモも消えます。メモはサイトデータの一部だからです。<br><br>iPhoneのSafariは、設定の「履歴とWebサイトデータを消去」で両方まとめて消えるので注意してください。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>パソコンで書いたメモが、スマホに出ない
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">故障ではありません。メモは端末ごと、ブラウザごとの「引き出し」に入っています。パソコンとスマホ、ChromeとSafariは、それぞれ別の引き出しです。同じメモを複数の端末で見たい場合は、データベースが必要になります（次のステップ）。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>ほかの人に、自分のメモを見られませんか？
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">見られません。URLを知っている人はアプリを開けますが、その人に見えるのは「その人の端末の引き出し」だけです。あなたのメモは、あなたの端末の中にしかありません。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>iPhoneでホーム画面に追加したら、メモが空になった
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">iPhoneでは、Safariで開いたときと、ホーム画面のアイコンから開いたときで、引き出しが別になることがあります。<strong>ホーム画面に追加してから、メモを書き始めてください。</strong></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>ブラウザにコードがそのまま表示される
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">ファイル名が <code>index.html.txt</code> のようになっている可能性があります。拡張子を表示する設定にして、名前を <code>index.html</code> に直してください。Canvasの「ダウンロード」ボタンで保存したファイルなら、この問題は起きにくいです。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>公開したURLが開けなくなった
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">Netlifyにログインせずに公開した場合、しばらくすると消えることがあります。無料の登録をしてログインした状態で、もう一度フォルダをドラッグしてください。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>作り直したら、スマホのメモが消えた
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">新しいサイトとして公開すると、URLが変わって別の引き出しになります。更新するときは、Netlifyの<strong>同じサイトの画面</strong>にフォルダをドラッグして、同じURLのまま置き直してください。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>ホーム画面のアイコンを好きな絵にしたい
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">iPhoneでは、アイコン用の画像ファイルを index.html と同じフォルダに置く必要があります。ファイルが2つになるので、まずは index.html 1枚で公開まで進み、慣れてからGeminiに「ホーム画面用のアイコンを設定したい」と相談するのがおすすめです。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-btn" onclick="toggleFaq(this)">
+        <div class="faq-q-badge">Q</div>公開したアプリを消したい
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-answer">Netlifyにログインし、サイトの設定画面からサイトを削除できます。削除すると、そのURLは開けなくなります。</div>
+    </div>
+
+    <div class="notice">
+      <img src="potz5.png" class="dog-img sm" alt="" />
+      <p>解決しない場合は、STEP 3の<strong>「③ 困ったとき」プロンプト</strong>に、出ている言葉やエラーをそのまま貼ってみてください。</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== 用語集 ===================== -->
+<div id="glossary" class="tab-content">
+  <div class="page">
+
+    <div class="dog-section">
+      <img src="potz4.png" class="dog-img" alt="" />
+      <div class="dog-section-text">
+        <div class="sec-tag">用語集</div>
+        <h2 class="sec-h2">むずかしい言葉を、<span class="o">やさしく</span></h2>
+        <p class="sec-lead">聞きなれない言葉が出てきたら、ここに戻ってきてください。すべて身近なものに例えて説明しています。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span>カテゴリから探す</div>
+      <div class="prompt-tabs">
+        <button class="prompt-tab-btn glossary-cat-btn active" data-cat="app" onclick="switchPromptTab('gcat-app', this)">① アプリ作り</button>
+        <button class="prompt-tab-btn glossary-cat-btn" data-cat="materials" onclick="switchPromptTab('gcat-materials', this)">② 材料</button>
+        <button class="prompt-tab-btn glossary-cat-btn" data-cat="files" onclick="switchPromptTab('gcat-files', this)">③ ファイル</button>
+        <button class="prompt-tab-btn glossary-cat-btn" data-cat="display" onclick="switchPromptTab('gcat-display', this)">④ 見た目</button>
+        <button class="prompt-tab-btn glossary-cat-btn" data-cat="publish" onclick="switchPromptTab('gcat-publish', this)">⑤ 公開</button>
+        <button class="prompt-tab-btn glossary-cat-btn" data-cat="ai" onclick="switchPromptTab('gcat-ai', this)">⑥ AI</button>
+      </div>
+
+      <div id="gcat-app" class="prompt-tab-content active"></div>
+      <div id="gcat-materials" class="prompt-tab-content"></div>
+      <div id="gcat-files" class="prompt-tab-content"></div>
+      <div id="gcat-display" class="prompt-tab-content"></div>
+      <div id="gcat-publish" class="prompt-tab-content"></div>
+      <div id="gcat-ai" class="prompt-tab-content"></div>
+    </div>
+
+    <div class="notice">
+      <img src="potz2.png" class="dog-img sm" alt="" />
+      <p>わからない言葉が出てきたら、また<strong>「用語集」タブ</strong>に戻ってきてください。何度でも確認して大丈夫です。</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <p><a href="sample/">見本アプリ</a> ・ <a href="sample/index.html" download="index.html">見本のソースコード</a> ・ <a href="slides/">講座スライド</a></p>
+  <p style="margin-top:8px">Geminiでつくる アプリ開発の基本のき ・ 徳島生成AI部 &copy; 2026</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  if (window.mermaid) mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      background: '#07101F',
+      primaryColor: '#1A2F55',
+      primaryTextColor: '#FFFFFF',
+      primaryBorderColor: '#FF7B1C',
+      lineColor: '#FF9B4E',
+      secondaryColor: '#112040',
+      tertiaryColor: '#0D1B35',
+      fontFamily: '-apple-system, BlinkMacSystemFont, Hiragino Sans, Noto Sans JP, sans-serif',
+      fontSize: '14px'
+    }
+  });
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: document.querySelector('.tab-nav-wrap').offsetTop - 10, behavior: 'smooth' });
+  }
+
+  function switchPromptTab(id, btn) {
+    const wrap = btn.closest('.card');
+    wrap.querySelectorAll('.prompt-tab-content').forEach(el => el.classList.remove('active'));
+    wrap.querySelectorAll('.prompt-tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggleFaq(btn) {
+    btn.closest('.faq-item').classList.toggle('open');
+  }
+
+  function copyPrompt(btn) {
+    const box = btn.closest('.prompt-header').nextElementSibling;
+    const text = box?.querySelector('p')?.innerText || '';
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = '✓ コピー済み';
+      setTimeout(() => btn.textContent = 'コピー', 1800);
+    });
+  }
+
+  /* ===================== 用語集 ===================== */
+  // 用語を追加したいときは、この配列に1件足すだけでOK。
+  const GLOSSARY_TERMS = [
+    // ⓪ アプリ作り
+    { id: 'app',          category: 'app', key: false, icon: '📱', term: 'アプリ',             oneliner: '目的のために作られた道具（メモ、地図など）',   analogy: '道具箱の道具' },
+    { id: 'spec',         category: 'app', key: true,  icon: '📝', term: '仕様書',             oneliner: '何を作るかを決めたメモ',                      analogy: '大工さんへの要望メモ' },
+    { id: 'cloud',        category: 'app', key: true,  icon: '☁️', term: 'クラウド',           oneliner: 'ネットの向こう側にある場所やサービス',        analogy: '外の貸し倉庫' },
+    { id: 'local',        category: 'app', key: true,  icon: '💻', term: 'ローカル',           oneliner: '自分のパソコンやスマホの中',                  analogy: '自宅の机' },
+    { id: 'localstorage', category: 'app', key: true,  icon: '🗄️', term: 'ローカルストレージ', oneliner: 'ブラウザが端末の中にデータを残す場所',        analogy: '自分の机の引き出し' },
+    { id: 'database',     category: 'app', key: true,  icon: '🏦', term: 'データベース',       oneliner: 'ネット上でデータをまとめて保管する場所',      analogy: '銀行の貸金庫' },
+    { id: 'sitedata',     category: 'app', key: false, icon: '🧹', term: 'サイトデータ',       oneliner: 'サイトが端末に保存したもの。消すとメモも消える', analogy: '引き出しの中身' },
+    { id: 'homescreen',   category: 'app', key: false, icon: '📲', term: 'ホーム画面に追加',   oneliner: 'サイトをアイコンから開けるようにする',        analogy: '机の上に出しておく' },
+    { id: 'error',        category: 'app', key: false, icon: '🧩', term: 'エラー',             oneliner: 'うまく動かない理由の知らせ。AIに貼る材料',    analogy: '車の警告ランプ' },
+
+    // ① サイトの材料
+    { id: 'html',     category: 'materials', key: true,  icon: '🏗️', term: 'HTML',              oneliner: 'ページの中身（文字・写真の並び）',            analogy: '家の骨組み' },
+    { id: 'css',      category: 'materials', key: true,  icon: '🎨', term: 'CSS',               oneliner: '見た目（色・大きさ・配置）',                  analogy: '壁紙・インテリア' },
+    { id: 'js',       category: 'materials', key: true,  icon: '⚡', term: 'JavaScript（JS）',    oneliner: '動き（ボタン・紙吹雪）',                      analogy: '電気・スイッチ' },
+    { id: 'code',     category: 'materials', key: false, icon: '📐', term: 'コード',             oneliner: '上の3つを書いた文字の集まり',                 analogy: '設計図' },
+    { id: 'tag',      category: 'materials', key: false, icon: '🏷️', term: 'タグ',               oneliner: 'HTMLの目印 <h1> <img> など',                 analogy: '部屋の名札' },
+    { id: 'comment',  category: 'materials', key: false, icon: '📝', term: 'コメント',           oneliner: 'コード内のメモ（画面には出ない）',            analogy: '付箋' },
+
+    // ② ファイルとフォルダ
+    { id: 'file',     category: 'files', key: false, icon: '📄', term: 'ファイル',           oneliner: '1つのデータ（index.html、photo1.jpg）',        analogy: '書類1枚' },
+    { id: 'folder',   category: 'files', key: false, icon: '🗂️', term: 'フォルダ',           oneliner: 'ファイルを入れる箱',                          analogy: 'クリアファイル' },
+    { id: 'ext',      category: 'files', key: true,  icon: '🏷️', term: '拡張子',             oneliner: 'ファイル名の最後の「.html」「.jpg」＝種類の目印', analogy: '荷物のラベル' },
+    { id: 'indexhtml',category: 'files', key: false, icon: '🚪', term: 'index.html',         oneliner: 'サイトの最初のページ',                        analogy: '玄関' },
+    { id: 'charset',  category: 'files', key: false, icon: '🔤', term: '文字コード（UTF-8）', oneliner: '文字化けしないための保存形式',                analogy: '共通の言葉' },
+
+    // ③ 表示・見た目
+    { id: 'browser',    category: 'display', key: false, icon: '📺', term: 'ブラウザ',                 oneliner: 'サイトを見るアプリ（Chrome、Safari等）',        analogy: 'テレビ' },
+    { id: 'preview',    category: 'display', key: false, icon: '👗', term: 'プレビュー',               oneliner: '完成前のお試し表示',                          analogy: '試着' },
+    { id: 'responsive', category: 'display', key: true,  icon: '🧦', term: 'レスポンシブ',             oneliner: 'スマホ・PCどちらでも自動で見やすく変わる',    analogy: '伸び縮みする服' },
+    { id: 'reload',     category: 'display', key: false, icon: '📰', term: '再読み込み（リロード）',   oneliner: '最新の状態に表示し直す',                      analogy: '新聞の最新号' },
+
+    // ④ 公開・インターネット
+    { id: 'website',       category: 'publish', key: false, icon: '🏬', term: 'Webサイト',        oneliner: 'ネットで見られるページの集まり',        analogy: 'お店' },
+    { id: 'url',            category: 'publish', key: true,  icon: '📍', term: 'URL',              oneliner: 'サイトの場所',                          analogy: '住所' },
+    { id: 'server',         category: 'publish', key: true,  icon: '🏭', term: 'サーバー',          oneliner: 'ファイルを置いて届ける場所',            analogy: '倉庫＋配達係' },
+    { id: 'hosting',        category: 'publish', key: false, icon: '🏢', term: 'ホスティング',      oneliner: 'サーバーを借りること',                  analogy: '倉庫を借りる' },
+    { id: 'netlify',        category: 'publish', key: false, icon: '📦', term: 'Netlify（Drop）',  oneliner: '無料でサイトを置けるサービス',          analogy: '貸し倉庫' },
+    { id: 'publicprivate',  category: 'publish', key: false, icon: '🔓', term: '公開／非公開',      oneliner: '誰でも見られる／自分だけ',              analogy: '開店／閉店' },
+    { id: 'upload',         category: 'publish', key: false, icon: '📤', term: 'アップロード',      oneliner: '自分のPC → ネットへ送る',               analogy: '荷物を預ける' },
+    { id: 'download',       category: 'publish', key: false, icon: '📥', term: 'ダウンロード',      oneliner: 'ネット → 自分のPCへ取り込む',           analogy: '荷物を受け取る' },
+    { id: 'deploy',         category: 'publish', key: true,  icon: '🚀', term: 'デプロイ',          oneliner: 'ネットに置いて公開すること',            analogy: 'お店の開店' },
+
+    // ⑤ AI関連
+    { id: 'genai',    category: 'ai', key: false, icon: '🤖', term: '生成AI',              oneliner: '文章やコードを作ってくれるAI',           analogy: 'なんでも書いてくれる助手' },
+    { id: 'gemini',   category: 'ai', key: false, icon: '✨', term: 'Gemini',              oneliner: 'Googleの生成AI',                        analogy: '助手の名前' },
+    { id: 'canvas',   category: 'ai', key: false, icon: '🛠️', term: 'Canvas',              oneliner: 'Gemini内のコード作成＆プレビュー画面',   analogy: '作業机' },
+    { id: 'prompt',   category: 'ai', key: false, icon: '🧾', term: 'プロンプト',           oneliner: 'AIへのお願い文',                        analogy: '注文書' },
+    { id: 'template', category: 'ai', key: false, icon: '📋', term: '雛形（テンプレート）', oneliner: '【　】を埋めるだけのお願い文の型',       analogy: '記入式の用紙' },
+  ];
+
+  function renderGlossaryCard(t) {
+    return `
+      <div class="glossary-card${t.key ? ' key' : ''}" id="glossary-term-${t.id}">
+        ${t.key ? '<div class="glossary-key-badge">⭐ ここは覚えよう</div>' : ''}
+        <div class="glossary-term">${t.term}</div>
+        <div class="glossary-oneliner">${t.oneliner}</div>
+        <div class="glossary-analogy"><span class="icon">${t.icon}</span><span>${t.analogy}</span></div>
+      </div>`;
+  }
+
+  function renderGlossaryGrids() {
+    const categories = ['app', 'materials', 'files', 'display', 'publish', 'ai'];
+    categories.forEach(cat => {
+      const container = document.getElementById('gcat-' + cat);
+      if (!container) return;
+      const items = GLOSSARY_TERMS
+        .filter(t => t.category === cat)
+        .sort((a, b) => (b.key === true) - (a.key === true));
+      container.innerHTML = '<div class="glossary-grid">' + items.map(renderGlossaryCard).join('') + '</div>';
+    });
+  }
+  renderGlossaryGrids();
+
+  function goToGlossary(id) {
+    switchTab('glossary', document.getElementById('navGlossaryBtn'));
+    const term = GLOSSARY_TERMS.find(t => t.id === id);
+    if (!term) return;
+    const catBtn = document.querySelector('.glossary-cat-btn[data-cat="' + term.category + '"]');
+    if (catBtn) switchPromptTab('gcat-' + term.category, catBtn);
+    setTimeout(() => {
+      const card = document.getElementById('glossary-term-' + id);
+      if (!card) return;
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.add('flash');
+      setTimeout(() => card.classList.remove('flash'), 1600);
+    }, 60);
+  }
+</script>
+</body>
+</html>

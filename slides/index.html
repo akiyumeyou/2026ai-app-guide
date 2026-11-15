@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geminiでつくる アプリ開発の基本のき（講座スライド）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700&family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+
+*{margin:0;padding:0;}
+html,body{height:100%;background:#0E1520;overflow:hidden;}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;}
+section{position:absolute;left:0;top:0;width:1920px;height:1080px;box-sizing:border-box;overflow:hidden;visibility:hidden;}
+section.on{visibility:visible;}
+section aside{display:none;}
+ul,ol{padding-left:1.3em;}
+table{border-collapse:collapse;}
+th,td{text-align:left;padding:.35em .6em;border-bottom:2px solid #D9CFBC;}
+th{font-weight:700;}
+.xicon{display:block;text-align:center;}
+.ic.xicon{font-size:52px;line-height:64px;}
+.ic-sm.xicon{font-size:42px;line-height:52px;}
+.ic-xs.xicon{font-size:26px;line-height:32px;}
+.arrow-right{clip-path:polygon(0 28%,60% 28%,60% 0,100% 50%,60% 100%,60% 72%,0 72%);}
+.arrow-left{clip-path:polygon(100% 28%,40% 28%,40% 0,0 50%,40% 100%,40% 72%,100% 72%);}
+#bar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;align-items:center;padding:8px;font:14px/1.2 sans-serif;color:#A8B1BD;opacity:.0;transition:opacity .2s;}
+#bar:hover,#bar.show{opacity:1;}
+#bar button,#bar a{font:inherit;color:#FBF7EF;background:#2B3848;border:1px solid #445266;border-radius:8px;padding:8px 14px;text-decoration:none;cursor:pointer;}
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:34%;overflow:auto;background:#FBF7EF;color:#1F2A37;font:20px/1.7 'Noto Sans JP',sans-serif;padding:20px 32px 56px;white-space:pre-wrap;display:none;}
+#notes.show{display:block;}
+@media print{
+  @page{size:1920px 1080px;margin:0;}
+  html,body{height:auto;overflow:visible;background:none;}
+  #stage{position:static;transform:none !important;width:auto;height:auto;}
+  section{position:relative;visibility:visible;page-break-after:always;break-after:page;}
+  .fragment{opacity:1 !important;}
+  #bar,#notes{display:none !important;}
+}
+
+/* ---- スライドのデザイン ---- */
+body{font-family:'Noto Sans JP',Arial,sans-serif;color:#1F2A37;}
+section{background:#FBF7EF;color:#1F2A37;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px;counter-increment:page;}
+section::after{content:counter(page);position:absolute;right:128px;bottom:64px;font-size:24px;color:#6B7280;}
+h1{font-family:'Zen Maru Gothic',Arial,sans-serif;font-size:120px;font-weight:700;line-height:1.15;}
+h2{font-family:'Zen Maru Gothic',Arial,sans-serif;font-size:72px;font-weight:700;line-height:1.2;}
+h3{font-family:'Zen Maru Gothic',Arial,sans-serif;font-size:44px;font-weight:700;line-height:1.3;}
+p{font-size:36px;line-height:1.5;}
+ul{font-size:32px;line-height:1.6;}
+ol{font-size:32px;line-height:1.6;}
+.head{display:flex;flex-direction:column;gap:12px;}
+.eyebrow{font-size:28px;font-weight:700;color:#C2410C;letter-spacing:2px;}
+.lead{font-size:44px;line-height:1.5;}
+.note{font-size:32px;color:#4A5568;}
+.foot{position:absolute;left:128px;bottom:64px;width:1200px;font-size:24px;line-height:1.2;color:#6B7280;}
+.cover{justify-content:center;}
+
+.dark{background:#1F2A37;color:#FBF7EF;}
+.dark .eyebrow{color:#FDBA74;}
+.dark .note{color:#D5DBE3;}
+.dark .foot{color:#A8B1BD;}
+section.dark::after{color:#A8B1BD;}
+.dark ol{font-size:40px;line-height:1.7;color:#FBF7EF;}
+
+.accent{background:#C2410C;color:#FFF8F0;}
+.accent .eyebrow{color:#FFF8F0;}
+.accent .foot{color:#FFF8F0;}
+section.accent::after{color:#FFF8F0;}
+
+.pill{align-self:flex-start;background:#C2410C;color:#FFF8F0;font-size:28px;font-weight:700;padding:10px 32px;border-radius:40px;}
+.today{align-self:flex-start;background:#0B7285;color:#FBF7EF;font-size:28px;font-weight:700;padding:6px 24px;border-radius:40px;}
+
+.cards{display:flex;gap:40px;}
+.card{flex:1;background:#FFFDF8;border:2px solid #D9CFBC;border-radius:24px;padding:40px;display:flex;flex-direction:column;gap:16px;}
+.card .label{font-size:28px;font-weight:700;color:#0B7285;}
+.card .body{font-size:32px;color:#4A5568;}
+.card ul{font-size:32px;line-height:1.6;color:#4A5568;}
+
+.steps{display:flex;gap:24px;}
+.step{flex:1;background:#FFFDF8;border:2px solid #D9CFBC;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px;}
+.step .num{font-family:'Zen Maru Gothic',Arial,sans-serif;font-size:72px;font-weight:700;line-height:1.1;color:#C2410C;}
+.step h3{font-size:32px;}
+.step .body{font-size:28px;color:#4A5568;}
+.step .time{font-size:28px;font-weight:700;color:#0B7285;}
+.dark .step{background:#2B3848;border:2px solid #445266;}
+.dark .step .num{color:#FDBA74;}
+.dark .step .body{color:#D5DBE3;}
+
+table{width:100%;font-size:34px;color:#1F2A37;}
+.thead{background:#F1EADB;}
+.c30{width:30%;}
+.c70{width:70%;}
+
+.prompt{background:#1F2A37;border-radius:24px;padding:40px 48px;display:flex;flex-direction:column;gap:4px;}
+.prompt p{font-size:32px;line-height:1.6;color:#FBF7EF;}
+
+.quiz{display:flex;flex-direction:column;gap:24px;}
+.q{display:flex;align-items:center;gap:32px;background:#FFFDF8;border:2px solid #D9CFBC;border-radius:24px;padding:24px 40px;}
+.q .qt{flex:1;font-size:32px;}
+.q .ans{width:220px;font-size:36px;font-weight:700;color:#0B7285;}
+.fragment{opacity:0;transition:opacity 300ms;}
+.fragment.visible{opacity:1;}
+
+.ic{width:64px;height:64px;color:#0B7285;}
+.ic-sm{width:52px;height:52px;color:#0B7285;}
+.ic-xs{width:32px;height:32px;color:#6B7280;}
+.arrow{width:64px;height:32px;background:#C2410C;align-self:center;flex-shrink:0;}
+.accent .arrow{background:#FFF8F0;}
+.flow{display:flex;gap:20px;align-items:stretch;}
+.split{display:flex;gap:64px;align-items:center;}
+.rows{flex:1;display:flex;flex-direction:column;gap:20px;}
+.rowc{display:flex;align-items:center;gap:24px;background:#FFFDF8;border:2px solid #D9CFBC;border-radius:24px;padding:24px 32px;}
+.rowc .txt{flex:1;display:flex;flex-direction:column;gap:4px;}
+.rowc .body{font-size:28px;color:#4A5568;}
+.tag{width:36px;height:36px;border-radius:18px;background:#C2410C;color:#FFF8F0;font-size:24px;font-weight:700;line-height:36px;text-align:center;flex-shrink:0;}
+
+.phone{width:340px;height:580px;box-sizing:border-box;border:10px solid #1F2A37;border-radius:48px;background:#FFFDF8;color:#1F2A37;padding:32px 24px;display:flex;flex-direction:column;gap:14px;flex-shrink:0;}
+.dark .phone{border:10px solid #FBF7EF;}
+.phone p{font-size:24px;line-height:1.5;}
+.phone .pt{font-size:28px;font-weight:700;}
+.phone .url{font-weight:700;color:#0B7285;}
+.prow{display:flex;align-items:center;gap:10px;}
+.pin{border:2px solid #D9CFBC;border-radius:12px;padding:8px 12px;}
+.pbtn{background:#0B7285;color:#FBF7EF;font-weight:700;padding:6px 28px;border-radius:12px;text-align:center;}
+.pitem{background:#F1EADB;border-radius:12px;padding:8px 12px;}
+.drawer{border:3px solid #0B7285;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;}
+.drawer-off{border:3px solid #D9CFBC;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:2px;color:#6B7280;}
+.cover-phone{position:absolute;right:128px;top:250px;}
+
+.win{border:4px solid #1F2A37;border-radius:20px;background:#FFFDF8;overflow:hidden;display:flex;flex-direction:column;}
+.winbar{background:#1F2A37;padding:12px 20px;display:flex;gap:10px;align-items:center;}
+.winbar p{color:#FBF7EF;font-weight:700;}
+.dot{width:14px;height:14px;border-radius:7px;background:#FBF7EF;}
+.winbody{height:140px;box-sizing:border-box;padding:16px 20px;display:flex;flex-direction:column;gap:10px;justify-content:center;}
+.win p{font-size:24px;line-height:1.5;}
+.win .fname{font-size:28px;font-weight:700;}
+.win .url{font-weight:700;color:#0B7285;}
+.bme{align-self:flex-end;background:#0B7285;color:#FBF7EF;padding:4px 18px;border-radius:18px;}
+.bai{align-self:flex-start;background:#F1EADB;padding:4px 18px;border-radius:18px;}
+.frow{display:flex;align-items:center;gap:14px;}
+
+.dia{display:flex;align-items:center;gap:16px;height:150px;}
+.mini{width:130px;height:150px;box-sizing:border-box;border:6px solid #1F2A37;border-radius:24px;background:#FBF7EF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex-shrink:0;}
+.mini p{font-size:24px;line-height:1.3;font-weight:700;}
+.dbbox{width:220px;height:150px;box-sizing:border-box;border:3px solid #0B7285;border-radius:24px;background:#E3F1F3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex-shrink:0;}
+.dbbox p{font-size:24px;line-height:1.3;font-weight:700;color:#0B7285;}
+.dia .cap{font-size:28px;color:#4A5568;}
+
+.nodes{display:flex;align-items:center;gap:24px;}
+.node{width:340px;box-sizing:border-box;background:#FFFDF8;color:#1F2A37;border-radius:24px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.node .nt{font-size:28px;font-weight:700;}
+.node .ns{font-size:24px;color:#4A5568;}
+
+.tabs{display:flex;gap:8px;}
+.tab{font-size:28px;font-weight:700;padding:12px 28px;border-radius:16px;background:#2B3848;color:#A8B1BD;border:2px solid #445266;}
+.tab-on{background:#FDBA74;color:#1F2A37;border:2px solid #FDBA74;}
+.prow .pin{flex:1;}
+.prow .pitem{flex:1;}
+
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" class="dark cover" data-transition="fade">
+<div class="phone cover-phone">
+<p class="pt">ちょこっとメモ</p>
+<p class="pin">牛乳を買う</p>
+<p class="pbtn">追加</p>
+<p class="pitem">病院 10時</p>
+<p class="pitem">回覧板を回す</p>
+<p class="pitem">孫の誕生日 12/3</p>
+</div>
+<p class="eyebrow">徳島生成AI部 ・ 前半30分</p>
+<h1>Geminiでつくる<br>アプリ開発の基本のき</h1>
+<p class="lead">メモアプリを例に学ぶ、アプリ作りの地図</p>
+<p class="note">講師：さとあき</p>
+<aside>【0:00】開始前にタブを4つ並べておく：①このスライド ②Gemini ③Netlify Drop ④完成したメモ帳アプリ。共有は「ブラウザのウィンドウ」を選ぶ。あいさつは30秒で。</aside>
+</section>
+<section id="goal" data-transition="fade">
+<div class="head">
+<p class="eyebrow">はじめに</p>
+<h2>今日のゴール</h2>
+</div>
+<p class="lead">AIでアプリを作って公開するまでの「道すじ」がわかる</p>
+<div class="steps">
+<div class="step"><p class="num">1</p><h3>仕組み</h3><p class="time">2〜9分</p></div>
+<div class="step"><p class="num">2</p><h3>仕様書</h3><p class="time">9〜12分</p></div>
+<div class="step"><p class="num">3</p><h3>3つの場所</h3><p class="time">12〜15分</p></div>
+<div class="step"><p class="num">4</p><h3>公開デモ</h3><p class="time">15〜23分</p></div>
+<div class="step"><p class="num">5</p><h3>単語と<br>おみやげ</h3><p class="time">23〜30分</p></div>
+</div>
+<p class="note">今日は講義です。あとで自分で試せるよう、資料とプロンプトをお渡しします</p>
+<p class="foot">はじめに ・ 0〜2分</p>
+<aside>【0:30】「今日は手を動かさなくて大丈夫。見て、地図を持ち帰る回です」と伝えて安心してもらう。チャットに「作ってみたいアプリ」を一言書いてもらってもよい。</aside>
+</section>
+<section id="demo1" class="dark" data-transition="fade">
+<p class="pill">DEMO 1 ・ 画面を切り替えます</p>
+<div class="tabs">
+<p class="tab">① スライド</p><p class="tab">② Gemini</p><p class="tab">③ Netlify</p><p class="tab tab-on">④ メモ帳アプリ</p>
+</div>
+<h2>まず、完成品を見てみましょう</h2>
+<ol>
+<li>メモを書くと、一覧に出てくる</li>
+<li>ページを閉じて開き直しても、メモが残っている</li>
+<li>スマホでも同じURLで開ける</li>
+</ol>
+<p class="foot">はじめに ・ 0〜2分</p>
+<aside>【1:00】見るポイントを読み上げてからタブ④へ。メモを1件書く→タブを閉じる→開き直して残っているのを見せる。最後に実物のスマホをカメラに見せて「これが私のスマホに入っています」。1分で戻る。</aside>
+</section>
+<section id="parts" data-transition="fade">
+<div class="head">
+<p class="eyebrow">1 ・ 仕組み</p>
+<h2>アプリは3つの部品でできている</h2>
+</div>
+<div class="split">
+<div class="phone">
+<div class="prow"><p class="tag">1</p><p class="pt">ちょこっとメモ</p></div>
+<p class="pin">牛乳を買う</p>
+<div class="prow"><p class="tag">2</p><p class="pbtn">追加</p></div>
+<div class="prow"><p class="tag">3</p><p class="pitem">病院 10時</p></div>
+<p class="pitem">回覧板を回す</p>
+<p class="pitem">孫の誕生日 12/3</p>
+</div>
+<div class="rows">
+<div class="rowc"><p class="tag">1</p><div class="txt"><h3>画面</h3><p class="body">見えるところ。メモを書く欄、追加ボタン、メモの一覧</p></div></div>
+<div class="rowc"><p class="tag">2</p><div class="txt"><h3>処理</h3><p class="body">動くところ。追加を押したら記録する、急ぎ順に並べ替える</p></div></div>
+<div class="rowc"><p class="tag">3</p><div class="txt"><h3>データ</h3><p class="body">残るところ。書いたメモそのもの。しまう場所が必要</p></div></div>
+</div>
+</div>
+<p class="foot">1 仕組み ・ 2〜9分</p>
+<aside>【2:00】左のスマホの番号と右の説明を対応させて話す。「1 見えていたのが画面、2 追加ボタンを押した時に動いたのが処理、3 残っていたメモがデータ」。どんなに大きなアプリもこの3つの組み合わせで、LINEや通販も同じ。次のスライドから「データをどこにしまうか」の話に入る。</aside>
+</section>
+<section id="storage" data-transition="fade">
+<div class="head">
+<p class="eyebrow">1 ・ 仕組み</p>
+<h2>メモはどこに保存される？</h2>
+</div>
+<div class="split">
+<div class="phone">
+<p class="pt">ブラウザの中</p>
+<div class="drawer">
+<p class="url">〇〇.netlify.app</p>
+<p>・牛乳を買う</p>
+<p>・病院 10時</p>
+</div>
+<div class="drawer-off">
+<p>ほかのサイト</p>
+<div class="frow"><span class="ic-xs xicon" aria-hidden="true">🔒</span><p>中は見えない</p></div>
+</div>
+</div>
+<div class="rows">
+<div class="rowc"><div class="txt"><h3>スマホ本体の中にある</h3><p class="body">写真やアプリと同じ保存領域。ネット上ではありません</p></div></div>
+<div class="rowc"><div class="txt"><h3>書き込むから消えない</h3><p class="body">電源を切っても、アプリを閉じても残ります</p></div></div>
+<div class="rowc"><div class="txt"><h3>引き出しはURLごとに別</h3><p class="body">ほかのサイトからはのぞけません</p></div></div>
+<p class="note">この引き出しを「ローカルストレージ」と呼びます</p>
+</div>
+</div>
+<p class="foot">1 仕組み ・ 2〜9分</p>
+<aside>【3:30】左の図：スマホの中のブラウザが、URLごとに引き出しを持っている。ブラウザ（ChromeやSafari）が、スマホ本体の保存領域に小さなファイルとして書き込んでいる。画面に一時的に出ているだけではなく、写真と同じように「保存」されているので消えない。「アプリのURLは誰でも開けるが、メモは各自のスマホの中。ほかの人には見えません」をはっきり伝える。</aside>
+</section>
+<section id="erase" data-transition="fade">
+<div class="head">
+<p class="eyebrow">1 ・ 仕組み</p>
+<h2>メモが消えるのは、どんなとき？</h2>
+</div>
+<table>
+<tr class="thead"><th class="c70">こんなとき</th><th class="c30">メモは</th></tr>
+<tr><td>アプリやブラウザを閉じる、電源を切る</td><td>残る</td></tr>
+<tr><td>「閲覧履歴」だけを消す</td><td>残る</td></tr>
+<tr><td>「Cookieとサイトデータ」を消す</td><td>消える</td></tr>
+<tr><td>シークレットモードで使う</td><td>閉じると消える</td></tr>
+<tr><td>別のブラウザ、別のスマホで開く</td><td>見えない</td></tr>
+</table>
+<p class="note">iPhoneの「履歴とWebサイトデータを消去」は、両方まとめて消えます</p>
+<p class="foot">1 仕組み ・ 2〜9分</p>
+<aside>【5:00】「履歴を消したらメモも消える？」への答え。履歴（見たページの記録）とサイトデータ（サイトが保存したもの）は別物。消すときのチェック項目で決まる。Chromeは項目を選べるが、iPhoneのSafariは設定の「履歴とWebサイトデータを消去」でまとめて消える。別のブラウザや別のスマホでは、消えたのではなく「別の引き出しを見ている」だけ。iPhoneでは長く開かないと消えることがあるので、ホーム画面に追加して使うのが安全（あとの「3つの約束」で再度ふれる）。</aside>
+</section>
+<section id="database" data-transition="fade">
+<div class="head">
+<p class="eyebrow">1 ・ 仕組み</p>
+<h2>ふつうのアプリはデータベースを使う</h2>
+</div>
+<div class="cards">
+<div class="card">
+<div class="dia"><div class="mini"><span class="ic-sm xicon" aria-hidden="true">🗄️</span><p>スマホ</p></div><p class="cap">データは<br>スマホの中</p></div>
+<h3>ローカルストレージ</h3>
+<ul><li>自分ひとり、1台で使う</li><li>準備なし、無料</li><li>例：メモ帳、電卓、ToDo</li></ul>
+<p class="today">今日はこちら</p>
+</div>
+<div class="card">
+<div class="dia"><div class="mini"><p>スマホ</p></div><div class="arrow arrow-right"></div><div class="dbbox"><span class="ic-sm xicon" aria-hidden="true">🗄️</span><p>ネット上</p></div><div class="arrow arrow-left"></div><div class="mini"><p>パソコン</p></div></div>
+<h3>データベース</h3>
+<ul><li>複数の端末で同じデータを見る</li><li>ほかの人と共有する、ログインする</li><li>例：LINE、通販、予約アプリ</li><li>作る場所の例：Firebase、Supabase</li></ul>
+</div>
+</div>
+<p class="foot">1 仕組み ・ 2〜9分</p>
+<aside>【7:00】図を指して：左はデータがスマホの中だけ。右はデータがネット上にあり、スマホからもパソコンからも同じものを見に行く。本来、データはネット上のデータベースに保管するのが基本。LINEを機種変更しても友だちやトークが戻るのは、データがネット上にあるから。今日のメモ帳は「自分ひとり・1台」なので、いちばん簡単なローカルストレージを選んだ。「スマホとパソコンで同じメモを見たい」「家族と共有したい」となったらデータベースの出番で、ログインの仕組みも必要になる。これは次のステップ。</aside>
+</section>
+<section id="spec" data-transition="fade">
+<div class="head">
+<p class="eyebrow">2 ・ 仕様書</p>
+<h2>仕様書は作る？ はい。4行で十分</h2>
+</div>
+<table>
+<tr class="thead"><th class="c30">決めること</th><th class="c70">見本「ちょこっとメモ」の場合</th></tr>
+<tr><td>誰が</td><td>スマホに慣れていないシニア</td></tr>
+<tr><td>何のために</td><td>買い物や今日やることを、さっと書く</td></tr>
+<tr><td>できること</td><td>追加、急ぎ度をつける、並べ替え、済んだら消す</td></tr>
+<tr><td>やらないこと</td><td>ログイン、共有、修正、日付の表示、写真</td></tr>
+</table>
+<p class="note">自分で書かなくて大丈夫。AIに質問してもらって作ります（おみやげ1）</p>
+<p class="foot">2 仕様書 ・ 9〜12分</p>
+<aside>【9:00】「仕様書がないと、AIは毎回ちがうものを作る」と理由を一言。「やらないこと」に共有とログインを書いたから、データベースなしで作れる。修正をやらないと決めたから、画面が1つで済んでいる。くわしい版（画面・処理・データの順）は配布ガイドの「2 仕様書」にある、と案内する。時間があればタブ②でおみやげ1のプロンプトを貼り、AIが質問してくる様子を30秒だけ見せる。</aside>
+</section>
+<section id="where" data-transition="fade">
+<div class="head">
+<p class="eyebrow">3 ・ 3つの場所</p>
+<h2>作る・試す・公開する場所を分ける</h2>
+</div>
+<div class="flow">
+<div class="card">
+<div class="win"><div class="winbar"><div class="dot"></div><div class="dot"></div><p>Gemini</p></div><div class="winbody"><p class="bme">メモ帳を作って</p><p class="bai">できました</p></div></div>
+<p class="label">クラウド（ネット上）</p><h3>1 作る場所</h3><p class="body">AIと会話しながら作る</p>
+</div>
+<div class="arrow arrow-right"></div>
+<div class="card">
+<div class="win"><div class="winbar"><div class="dot"></div><div class="dot"></div><p>自分のパソコン</p></div><div class="winbody"><div class="frow"><span class="ic-sm xicon" aria-hidden="true">📄</span><p class="fname">index.html</p></div><div class="frow"><span class="ic-xs xicon" aria-hidden="true">✅</span><p>開いて、動きを確かめる</p></div></div></div>
+<p class="label">ローカル（自分のパソコン）</p><h3>2 試す場所</h3><p class="body">ダウンロードして確かめる</p>
+</div>
+<div class="arrow arrow-right"></div>
+<div class="card">
+<div class="win"><div class="winbar"><div class="dot"></div><div class="dot"></div><p>Netlify</p></div><div class="winbody"><p class="url">〇〇.netlify.app</p><div class="frow"><span class="ic-xs xicon" aria-hidden="true">🌐</span><p>だれでも開ける</p></div></div></div>
+<p class="label">クラウド（ネット上）</p><h3>3 公開する場所</h3><p class="body">OKのものだけを置く</p>
+</div>
+</div>
+<p class="foot">3 3つの場所 ・ 12〜15分</p>
+<aside>【12:00】図を左から右へ。Geminiで作ったファイルはまだクラウド（ネット上）にある。それを自分のパソコン（ローカル）にダウンロードして試し、OKだったものだけを公開する。これが今後どんなアプリを作るときも基本になる流れで、作りかけをうっかり公開しないためのいちばんの基本。作る場所と公開する場所が同じ道具もあり便利だが、修正途中のものが公開されてしまう事故が起こりうる。場所を分けておけば「自分でドラッグするまで公開されない」ので安心。ここで「ローカル」「クラウド」という言葉を覚えてもらう。</aside>
+</section>
+<section id="deploy" class="accent" data-transition="fade">
+<p class="eyebrow">4 ・ 公開</p>
+<h2>デプロイとは、作ったアプリを<br>ネットに置いて公開すること</h2>
+<div class="nodes">
+<div class="node"><span class="ic xicon" aria-hidden="true">📄</span><p class="nt">自分のパソコン</p><p class="ns">index.html</p></div>
+<div class="arrow arrow-right"></div>
+<div class="node"><span class="ic xicon" aria-hidden="true">☁️</span><p class="nt">ネット上に置く</p><p class="ns">URLがもらえる</p></div>
+<div class="arrow arrow-right"></div>
+<div class="node"><span class="ic xicon" aria-hidden="true">🔗</span><p class="nt">スマホ</p><p class="ns">URLで開ける</p></div>
+</div>
+<p class="lead">パソコンの中のファイルのままでは、スマホから開けません</p>
+<p class="foot">4 公開デモ ・ 15〜23分</p>
+<aside>【15:00】「デプロイ」は今日いちばん覚えて帰ってほしい言葉。さっきの3つの場所でいうと「2 試す場所」から「3 公開する場所」へ運ぶ作業のこと。ネットに置くと「URL」という住所がもらえ、スマホからも開けるようになる。</aside>
+</section>
+<section id="steps" data-transition="fade">
+<div class="head">
+<p class="eyebrow">4 ・ 公開</p>
+<h2>作って公開する5ステップ</h2>
+</div>
+<div class="steps">
+<div class="step"><span class="ic xicon" aria-hidden="true">💬</span><p class="num">1</p><h3>AIに頼む</h3><p class="body">Geminiに<br>プロンプトを貼る</p></div>
+<div class="step"><span class="ic xicon" aria-hidden="true">📄</span><p class="num">2</p><h3>ダウンロード</h3><p class="body">index.htmlを<br>パソコンに保存</p></div>
+<div class="step"><span class="ic xicon" aria-hidden="true">✅</span><p class="num">3</p><h3>手元で試す</h3><p class="body">開いて動きを<br>確かめる</p></div>
+<div class="step"><span class="ic xicon" aria-hidden="true">☁️</span><p class="num">4</p><h3>ネットに置く</h3><p class="body">Netlify Dropに<br>ドラッグ</p></div>
+<div class="step"><span class="ic xicon" aria-hidden="true">🏠</span><p class="num">5</p><h3>スマホで開く</h3><p class="body">URLを開き<br>ホーム画面に追加</p></div>
+</div>
+<p class="note">かかるお金は0円。Netlifyは無料の登録が必要です</p>
+<p class="foot">4 公開デモ ・ 15〜23分</p>
+<aside>【15:30】この5つをこれから実演する、と予告。1が「作る場所」、2と3が「試す場所」、4が「公開する場所」。「index.html」は「最初に開かれるファイルの決まった名前」と説明する。</aside>
+</section>
+<section id="demo2" class="dark" data-transition="fade">
+<p class="pill">DEMO 2 ・ 画面を順に切り替えます</p>
+<div class="tabs">
+<p class="tab">① スライド</p><p class="tab tab-on">② Gemini</p><p class="tab tab-on">③ Netlify</p><p class="tab tab-on">④ メモ帳アプリ</p>
+</div>
+<h2>作る → 試す → 公開する</h2>
+<ol>
+<li>Geminiにプロンプトを貼る（タブ②）</li>
+<li>ダウンロードして、パソコンで開いて試す</li>
+<li>フォルダをNetlifyにドラッグする（タブ③）</li>
+<li>出てきたURLを開く（タブ④）</li>
+<li>スマホで開いて、ホーム画面に追加する</li>
+</ol>
+<p class="foot">4 公開デモ ・ 15〜23分</p>
+<aside>【16:00】7分のデモ。切り替えるたびに「今はタブ②、Geminiです」と声に出す。
+1) タブ②：おみやげ2のプロンプトを貼って送信。生成を待たず「できあがったものがこちら」と事前に作った会話へ。
+2) 試す：ダウンロードしたindex.htmlをダブルクリックで開き、メモを1件書いて動きを確かめる。「今はまだ自分のパソコンの中だけ。誰にも見えていません」と言う。
+3) タブ③：index.htmlを入れたフォルダをドラッグ。URLが出たら読み上げる。
+4) タブ④：URLを開く。さっき試しに書いたメモは出てこない。「URLが違うので別の引き出し」と仕組みの話につなげる。
+5) スマホ：実機をカメラに見せ、ホーム画面のアイコンから開く。
+うまくいかない時は事前に公開済みのURLに切り替える。23分になったら途中でもスライドへ戻る。</aside>
+</section>
+<section id="words" data-transition="fade">
+<div class="head">
+<p class="eyebrow">5 ・ つまずく単語</p>
+<h2>この言葉が出ても、もう大丈夫</h2>
+</div>
+<table>
+<tr class="thead"><th class="c30">言葉</th><th class="c70">一言でいうと</th></tr>
+<tr><td>HTML</td><td>アプリの画面を書いたファイル</td></tr>
+<tr><td>デプロイ</td><td>ネットに置いて公開すること</td></tr>
+<tr><td>URL</td><td>アプリの住所</td></tr>
+<tr><td>ローカルストレージ</td><td>端末の中の引き出し</td></tr>
+<tr><td>エラー</td><td>失敗ではなく、AIに貼る材料</td></tr>
+<tr><td>GitHub</td><td>コードの保管庫（今日は使いません）</td></tr>
+</table>
+<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<aside>【23:00】全部は読まない。今日のデモに出てきた言葉だけ指して振り返る。1分で次のクイズへ。</aside>
+</section>
+<section id="quiz" data-transition="fade">
+<div class="head">
+<p class="eyebrow">5 ・ クイズ</p>
+<h2>チャットにAかBで答えてください</h2>
+</div>
+<div class="quiz">
+<div class="q"><p class="qt">メモ帳アプリのメモは、どこに保存される？<br>A：ネット上のサーバー　　B：自分のスマホの中</p><p class="ans fragment">答えは B</p></div>
+<div class="q"><p class="qt">「デプロイ」とは？<br>A：アプリを公開すること　　B：アプリを削除すること</p><p class="ans fragment">答えは A</p></div>
+<div class="q"><p class="qt">エラーが出たら、どうする？<br>A：あきらめる　　B：そのままAIに貼る</p><p class="ans fragment">答えは B</p></div>
+</div>
+<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<aside>【24:00】クリックするたびに答えが1つずつ出る。1問ずつ読み上げ、チャットの回答を待ってからクリック。全員正解を一緒に喜ぶ。3問で2分。</aside>
+</section>
+<section id="care" data-transition="fade">
+<div class="head">
+<p class="eyebrow">5 ・ 長く使うために</p>
+<h2>長く使うための3つの約束</h2>
+</div>
+<div class="cards">
+<div class="card"><span class="ic xicon" aria-hidden="true">🏠</span><p class="label">約束 1</p><h3>ホーム画面に追加して使う</h3><p class="body">アイコンから開くのが基本</p></div>
+<div class="card"><span class="ic xicon" aria-hidden="true">🔗</span><p class="label">約束 2</p><h3>URLは変えない</h3><p class="body">変えるとメモが見えなくなる</p></div>
+<div class="card"><span class="ic xicon" aria-hidden="true">📒</span><p class="label">約束 3</p><h3>大事なメモは書き出す</h3><p class="body">機種変更の前にバックアップ</p></div>
+</div>
+<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<aside>【26:00】メモは端末の中にあるので、守るのは自分。ローカルストレージの弱点への対策を3つ。おみやげ2のプロンプトには「書き出しボタン」を入れてあると伝える。1分で。</aside>
+</section>
+<section id="gift1" data-transition="fade">
+<div class="head">
+<p class="eyebrow">おみやげ 1</p>
+<h2>仕様書を一緒に作るプロンプト</h2>
+</div>
+<div class="prompt">
+<p>私はプログラミング初心者です。スマホで使うメモ帳アプリを作りたいです。</p>
+<p>仕様書を作りたいので、私に1問ずつ質問してください。</p>
+<p>質問は全部で5問まで、専門用語は使わないでください。</p>
+<p>最後に「誰が・何のために・できること・やらないこと」でまとめてください。</p>
+</div>
+<p class="note">配布ガイドからコピーして、Geminiに貼るだけ</p>
+<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<aside>【27:00】ここで配布ガイドのURLをZoomのチャットに貼る。プロンプトはガイドの「コピー」ボタンで写せる。「メモ帳アプリ」の部分を変えれば、ほかのアプリにも使えると伝える。</aside>
+</section>
+<section id="gift2" data-transition="fade">
+<div class="head">
+<p class="eyebrow">おみやげ 2</p>
+<h2>自分専用メモアプリを作るプロンプト</h2>
+</div>
+<div class="prompt">
+<p>スマホで使うメモアプリを作ってください。</p>
+<p>■ 自分専用にしたいところ</p>
+<p>・アプリ名：【例：はなこの買い物メモ】</p>
+<p>・色や雰囲気：【例：やさしい緑色、落ち着いた感じ】</p>
+<p>・ブラウザのタブに出る名前：【例：メモ】</p>
+<p>■ 画面　■ できること　■ データ　■ 決まりごと（そのまま使う）</p>
+</div>
+<p class="note">書き換えるのは【　】の3か所だけ。全文は配布ガイドの「3 作る」にあります</p>
+<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<aside>【28:00】デモで使ったのと同じプロンプト。書き換えるのは最初の3行だけ、と強調する。「■ 画面」「■ できること」「■ データ」は仕組みで話した3つの部品と同じ並びで、仕様書がそのままプロンプトになっている。決まりごとは、1枚だけ＝公開が簡単、画像なし＝失敗しにくい。</aside>
+</section>
+<section id="gift3" data-transition="fade">
+<div class="head">
+<p class="eyebrow">おみやげ 3</p>
+<h2>困ったときのプロンプト</h2>
+</div>
+<div class="prompt">
+<p>次の言葉（またはエラー）の意味がわかりません：「〇〇」</p>
+<p>小学生にもわかるように説明して、</p>
+<p>私が次にやることを1つだけ教えてください。</p>
+</div>
+<p class="lead">エラーは失敗ではありません。そのまま貼ればAIが一緒に直します</p>
+<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<aside>【28:45】「わからない言葉が出たら、まずこれ」。今日いちばん使うのはこの3つ目かもしれません、と伝える。</aside>
+</section>
+<section id="closing" class="dark" data-transition="fade">
+<div class="head">
+<p class="eyebrow">まとめ</p>
+<h2>今日の地図</h2>
+</div>
+<div class="steps">
+<div class="step"><p class="num">1</p><h3>アイデア</h3><p class="body">作りたいものを<br>一言で</p></div>
+<div class="step"><p class="num">2</p><h3>仕様書</h3><p class="body">4行で決める</p></div>
+<div class="step"><p class="num">3</p><h3>AIと作る</h3><p class="body">ブラウザだけで<br>OK</p></div>
+<div class="step"><p class="num">4</p><h3>デプロイ</h3><p class="body">ネットに置いて<br>URLをもらう</p></div>
+<div class="step"><p class="num">5</p><h3>スマホで使う</h3><p class="body">ホーム画面に<br>追加</p></div>
+</div>
+<p class="lead">今夜、おみやげのプロンプトを1つ試してみてください</p>
+<p class="foot">まとめ ・ 29〜30分</p>
+<aside>【29:00】地図を左から右へ読み上げて締める。「できたらSlackやチャットでURLを見せてください」と呼びかけ、後半のパートへつなぐ。</aside>
+</section>
+</div>
+<div id="notes"></div>
+<div id="bar"><button id="bprev">← 戻る</button><span id="pos"></span><button id="bnext">進む →</button><button id="bnotes">ノート（N）</button><span>F：全画面</span><a href="../">ガイドへ</a></div>
+<script>
+const secs=[...document.querySelectorAll('section')];let cur=0;
+const stage=document.getElementById('stage'),notes=document.getElementById('notes'),bar=document.getElementById('bar'),pos=document.getElementById('pos');
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='translate('+(innerWidth-1920*s)/2+'px,'+(innerHeight-1080*s)/2+'px) scale('+s+')';}
+function show(n,back){cur=Math.max(0,Math.min(secs.length-1,n));secs.forEach((s,i)=>s.classList.toggle('on',i===cur));
+  secs[cur].querySelectorAll('.fragment').forEach(f=>f.classList.toggle('visible',!!back));
+  const a=secs[cur].querySelector('aside');notes.textContent=a?a.textContent:'';pos.textContent=(cur+1)+' / '+secs.length;history.replaceState(null,'','#'+(cur+1));}
+function next(){const f=secs[cur].querySelector('.fragment:not(.visible)');if(f){f.classList.add('visible');return;}if(cur<secs.length-1)show(cur+1);}
+function prev(){const v=[...secs[cur].querySelectorAll('.fragment.visible')];if(v.length){v[v.length-1].classList.remove('visible');return;}if(cur>0)show(cur-1,true);}
+addEventListener('resize',fit);
+addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();next();}
+  else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev();}
+  else if(e.key==='n'||e.key==='N')notes.classList.toggle('show');
+  else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+  else if(e.key==='Home')show(0);else if(e.key==='End')show(secs.length-1);});
+stage.addEventListener('click',e=>{(e.clientX<innerWidth*0.3)?prev():next();});
+document.getElementById('bprev').onclick=prev;document.getElementById('bnext').onclick=next;
+document.getElementById('bnotes').onclick=()=>notes.classList.toggle('show');
+let t;addEventListener('mousemove',()=>{bar.classList.add('show');clearTimeout(t);t=setTimeout(()=>bar.classList.remove('show'),2500);});
+fit();show((parseInt(location.hash.slice(1))||1)-1);
+</script>
+</body>
+</html>
