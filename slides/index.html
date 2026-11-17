@@ -157,6 +157,15 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 .prow .pin{flex:1;}
 .prow .pitem{flex:1;}
 
+.c20{width:20%;}
+.c40{width:40%;}
+.codebox{width:600px;box-sizing:border-box;background:#1F2A37;border-radius:24px;padding:28px 32px;display:flex;flex-direction:column;gap:10px;flex-shrink:0;}
+.codebox .cl{font-family:'Courier New',monospace;font-size:24px;line-height:1.5;color:#FBF7EF;}
+.ctag{align-self:flex-start;font-size:24px;font-weight:700;line-height:1.5;padding:2px 18px;border-radius:12px;color:#1F2A37;flex-shrink:0;}
+.c-html{background:#FDBA74;}
+.c-css{background:#8ED8CF;}
+.c-js{background:#F5E08A;}
+
 </style>
 </head>
 <body>
@@ -172,7 +181,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 </div>
 <p class="eyebrow">徳島生成AI部 ・ 前半30分</p>
 <h1>Geminiでつくる<br>アプリ開発の基本のき</h1>
-<p class="lead">メモアプリを例に学ぶ、アプリ作りの地図</p>
+<p class="lead">メモアプリを例に、「作る・試す・公開する」の流れを学ぶ</p>
 <p class="note">講師：さとあき</p>
 <aside>【0:00】開始前にタブを4つ並べておく：①このスライド ②Gemini ③Netlify Drop ④完成したメモ帳アプリ。共有は「ブラウザのウィンドウ」を選ぶ。あいさつは30秒で。</aside>
 </section>
@@ -184,14 +193,14 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <p class="lead">AIでアプリを作って公開するまでの「道すじ」がわかる</p>
 <div class="steps">
 <div class="step"><p class="num">1</p><h3>仕組み</h3><p class="time">2〜9分</p></div>
-<div class="step"><p class="num">2</p><h3>仕様書</h3><p class="time">9〜12分</p></div>
-<div class="step"><p class="num">3</p><h3>3つの場所</h3><p class="time">12〜15分</p></div>
-<div class="step"><p class="num">4</p><h3>公開デモ</h3><p class="time">15〜23分</p></div>
-<div class="step"><p class="num">5</p><h3>単語と<br>おみやげ</h3><p class="time">23〜30分</p></div>
+<div class="step"><p class="num">2</p><h3>仕様書</h3><p class="time">9〜11分</p></div>
+<div class="step"><p class="num">3</p><h3>3つの場所</h3><p class="time">11〜15分</p></div>
+<div class="step"><p class="num">4</p><h3>公開デモ</h3><p class="time">15〜22分</p></div>
+<div class="step"><p class="num">5</p><h3>次の一歩と<br>おみやげ</h3><p class="time">22〜30分</p></div>
 </div>
 <p class="note">今日は講義です。あとで自分で試せるよう、資料とプロンプトをお渡しします</p>
 <p class="foot">はじめに ・ 0〜2分</p>
-<aside>【0:30】「今日は手を動かさなくて大丈夫。見て、地図を持ち帰る回です」と伝えて安心してもらう。チャットに「作ってみたいアプリ」を一言書いてもらってもよい。</aside>
+<aside>【0:30】「今日は手を動かさなくて大丈夫。見て、流れをつかむ回です」と伝えて安心してもらう。チャットに「作ってみたいアプリ」を一言書いてもらってもよい。</aside>
 </section>
 <section id="demo1" class="dark" data-transition="fade">
 <p class="pill">DEMO 1 ・ 画面を切り替えます</p>
@@ -229,6 +238,32 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 </div>
 <p class="foot">1 仕組み ・ 2〜9分</p>
 <aside>【2:00】左のスマホの番号と右の説明を対応させて話す。「1 見えていたのが画面、2 追加ボタンを押した時に動いたのが処理、3 残っていたメモがデータ」。どんなに大きなアプリもこの3つの組み合わせで、LINEや通販も同じ。次のスライドから「データをどこにしまうか」の話に入る。</aside>
+</section>
+<section id="code" data-transition="fade">
+<div class="head">
+<p class="eyebrow">1 ・ 仕組み</p>
+<h2>index.htmlの中身は、3種類の言葉</h2>
+</div>
+<div class="split">
+<div class="codebox">
+<p class="ctag c-html">HTML</p>
+<p class="cl">&lt;input id="newMemo"&gt;</p>
+<p class="cl">&lt;button&gt;追加&lt;/button&gt;</p>
+<p class="ctag c-css">CSS</p>
+<p class="cl">button { color: white;</p>
+<p class="cl">  background: #d35400; }</p>
+<p class="ctag c-js">JavaScript</p>
+<p class="cl">localStorage.setItem(</p>
+<p class="cl">  'memos', メモ一覧 );</p>
+</div>
+<div class="rows">
+<div class="rowc"><p class="ctag c-html">HTML</p><div class="txt"><h3>骨組み</h3><p class="body">画面に何を置くか。入力欄、ボタン、メモの一覧</p></div></div>
+<div class="rowc"><p class="ctag c-css">CSS</p><div class="txt"><h3>見た目</h3><p class="body">色、大きさ、並べ方。オレンジのボタンはここで決まる</p></div></div>
+<div class="rowc"><p class="ctag c-js">JavaScript</p><div class="txt"><h3>動き</h3><p class="body">押したら追加する、並べ替える、保存する</p></div></div>
+</div>
+</div>
+<p class="foot">1 仕組み ・ 2〜9分</p>
+<aside>【3:00】Geminiの画面に出てくる英語のかたまりの正体。読めなくて大丈夫、「3種類ある」とわかれば十分。さっきの3つの部品とつなげる：画面＝HTMLとCSS、処理＝JavaScript、データ＝JavaScriptがローカルストレージに読み書きする。本来は3つを別々のファイルに分けることが多いが、今回は index.html 1枚にまとめている（だからドラッグ1回で公開できる）。「色を変えて」と頼むとAIはCSSを、「機能を足して」と頼むとJavaScriptを書き換えている。</aside>
 </section>
 <section id="storage" data-transition="fade">
 <div class="head">
@@ -296,10 +331,24 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <p class="foot">1 仕組み ・ 2〜9分</p>
 <aside>【7:00】図を指して：左はデータがスマホの中だけ。右はデータがネット上にあり、スマホからもパソコンからも同じものを見に行く。本来、データはネット上のデータベースに保管するのが基本。LINEを機種変更しても友だちやトークが戻るのは、データがネット上にあるから。今日のメモ帳は「自分ひとり・1台」なので、いちばん簡単なローカルストレージを選んだ。「スマホとパソコンで同じメモを見たい」「家族と共有したい」となったらデータベースの出番で、ログインの仕組みも必要になる。これは次のステップ。</aside>
 </section>
+<section id="specwhat" data-transition="fade">
+<div class="head">
+<p class="eyebrow">2 ・ 仕様書</p>
+<h2>仕様書って何？</h2>
+</div>
+<p class="lead">AIに渡す「こういうアプリを作って」の注文メモです</p>
+<div class="cards">
+<div class="card"><p class="label">メモなしで頼むと</p><h3>「メモアプリを作って」</h3><p class="body">AIがおまかせで作る。頼むたびに、ちがうものができる</p></div>
+<div class="card"><p class="label">メモを渡して頼むと</p><h3>「誰が、何のために、何ができる」</h3><p class="body">ほしいものが伝わる。思ったとおりのアプリに近づく</p></div>
+</div>
+<p class="note">人にお使いを頼むときの「買い物メモ」と同じ。書いてあるほど、まちがいが減ります</p>
+<p class="foot">2 仕様書 ・ 9〜11分</p>
+<aside>【9:00】「仕様書」という言葉はむずかしく聞こえるが、中身は注文メモ。お使いの例で話す：「牛乳買ってきて」だけだと、種類も本数もおまかせになる。「低脂肪を1本」と書いたメモを渡せば、ほしいものが届く。AIも同じで、何も決めずに頼むと、AIが勝手に決めて作る。それでも動くものはできるが、頼むたびに違うものになり、直したいときに話が通じにくい。だから先に、作りたいものを短く書いておく。それが仕様書。</aside>
+</section>
 <section id="spec" data-transition="fade">
 <div class="head">
 <p class="eyebrow">2 ・ 仕様書</p>
-<h2>仕様書は作る？ はい。4行で十分</h2>
+<h2>仕様書は、まず4行で十分</h2>
 </div>
 <table>
 <tr class="thead"><th class="c30">決めること</th><th class="c70">見本「ちょこっとメモ」の場合</th></tr>
@@ -309,8 +358,21 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <tr><td>やらないこと</td><td>ログイン、共有、修正、日付の表示、写真</td></tr>
 </table>
 <p class="note">自分で書かなくて大丈夫。AIに質問してもらって作ります（おみやげ1）</p>
-<p class="foot">2 仕様書 ・ 9〜12分</p>
-<aside>【9:00】「仕様書がないと、AIは毎回ちがうものを作る」と理由を一言。「やらないこと」に共有とログインを書いたから、データベースなしで作れる。修正をやらないと決めたから、画面が1つで済んでいる。くわしい版（画面・処理・データの順）は配布ガイドの「2 仕様書」にある、と案内する。時間があればタブ②でおみやげ1のプロンプトを貼り、AIが質問してくる様子を30秒だけ見せる。</aside>
+<p class="foot">2 仕様書 ・ 9〜11分</p>
+<aside>【10:00】見本アプリの注文メモがこれ。決めるのは4つだけ。「やらないこと」に共有とログインを書いたから、データベースなしで作れる。修正をやらないと決めたから、画面が1つで済んでいる。くわしい版（画面・処理・データの順）は配布ガイドの「2 仕様書」にある、と案内する。時間があればタブ②でおみやげ1のプロンプトを貼り、AIが質問してくる様子を30秒だけ見せる。</aside>
+</section>
+<section id="cloudlocal" data-transition="fade">
+<div class="head">
+<p class="eyebrow">3 ・ 3つの場所</p>
+<h2>クラウドとローカルの違い</h2>
+</div>
+<div class="cards">
+<div class="card"><span class="ic xicon" aria-hidden="true">☁️</span><h3>クラウド</h3><p class="label">ネットの向こう側にある場所</p><ul><li>どのパソコンからでも使える</li><li>ネットがないと使えない</li><li>例：Gemini、Netlify、Gmail</li></ul></div>
+<div class="card"><span class="ic xicon" aria-hidden="true">🏠</span><h3>ローカル</h3><p class="label">自分のパソコンやスマホの中</p><ul><li>ネットがなくても使える</li><li>自分にしか見えない</li><li>例：ダウンロードしたファイル、写真</li></ul></div>
+</div>
+<p class="note">Geminiで作ったアプリは、最初はクラウド（Geminiの中）にあります</p>
+<p class="foot">3 3つの場所 ・ 11〜15分</p>
+<aside>【11:00】身近な例で：Gmailのメールはクラウド、スマホで撮った写真はローカル。Geminiの画面で動いているアプリは「Geminiの中」にあるだけで、まだ自分の手元にはない。ダウンロードして初めて、自分のパソコン（ローカル）にファイルとして来る。メモアプリのローカルストレージの「ローカル」も同じ意味で、端末の中ということ。</aside>
 </section>
 <section id="where" data-transition="fade">
 <div class="head">
@@ -333,8 +395,22 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <p class="label">クラウド（ネット上）</p><h3>3 公開する場所</h3><p class="body">OKのものだけを置く</p>
 </div>
 </div>
-<p class="foot">3 3つの場所 ・ 12〜15分</p>
+<p class="foot">3 3つの場所 ・ 11〜15分</p>
 <aside>【12:00】図を左から右へ。Geminiで作ったファイルはまだクラウド（ネット上）にある。それを自分のパソコン（ローカル）にダウンロードして試し、OKだったものだけを公開する。これが今後どんなアプリを作るときも基本になる流れで、作りかけをうっかり公開しないためのいちばんの基本。作る場所と公開する場所が同じ道具もあり便利だが、修正途中のものが公開されてしまう事故が起こりうる。場所を分けておけば「自分でドラッグするまで公開されない」ので安心。ここで「ローカル」「クラウド」という言葉を覚えてもらう。</aside>
+</section>
+<section id="whylocal" data-transition="fade">
+<div class="head">
+<p class="eyebrow">3 ・ 3つの場所</p>
+<h2>なぜダウンロードして試すの？</h2>
+</div>
+<div class="cards">
+<div class="card"><span class="ic xicon" aria-hidden="true">✅</span><p class="label">理由 1</p><h3>ファイルだけで動くか確かめる</h3><p class="body">Geminiの画面では動いても、取り出すと動かないことがある</p></div>
+<div class="card"><span class="ic xicon" aria-hidden="true">🔒</span><p class="label">理由 2</p><h3>公開前なら失敗できる</h3><p class="body">手元で試すあいだは、だれにも見えない</p></div>
+<div class="card"><span class="ic xicon" aria-hidden="true">📒</span><p class="label">理由 3</p><h3>手元に残る</h3><p class="body">ファイルがあれば、直す、置き直す、別の場所へ移すができる</p></div>
+</div>
+<p class="note">OKになったものだけを公開する。これが基本の流れです</p>
+<p class="foot">3 3つの場所 ・ 11〜15分</p>
+<aside>【13:30】理由1：Geminiのプレビューは、Geminiが用意した特別な場所で動いている。公開先（Netlify）にはその助けがないので、ファイル単体で動くかを手元で確かめる。理由2：作る場所と公開する場所が同じ道具だと、直している途中のものが公開されてしまう事故が起こりうる。理由3：AIのサービス側に置いたままだと、会話が消えたりサービスが変わったりしたときに取り出せなくなる。自分のパソコンにファイルがあれば安心。</aside>
 </section>
 <section id="deploy" class="accent" data-transition="fade">
 <p class="eyebrow">4 ・ 公開</p>
@@ -347,7 +423,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <div class="node"><span class="ic xicon" aria-hidden="true">🔗</span><p class="nt">スマホ</p><p class="ns">URLで開ける</p></div>
 </div>
 <p class="lead">パソコンの中のファイルのままでは、スマホから開けません</p>
-<p class="foot">4 公開デモ ・ 15〜23分</p>
+<p class="foot">4 公開デモ ・ 15〜22分</p>
 <aside>【15:00】「デプロイ」は今日いちばん覚えて帰ってほしい言葉。さっきの3つの場所でいうと「2 試す場所」から「3 公開する場所」へ運ぶ作業のこと。ネットに置くと「URL」という住所がもらえ、スマホからも開けるようになる。</aside>
 </section>
 <section id="steps" data-transition="fade">
@@ -363,7 +439,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <div class="step"><span class="ic xicon" aria-hidden="true">🏠</span><p class="num">5</p><h3>スマホで開く</h3><p class="body">URLを開き<br>ホーム画面に追加</p></div>
 </div>
 <p class="note">かかるお金は0円。Netlifyは無料の登録が必要です</p>
-<p class="foot">4 公開デモ ・ 15〜23分</p>
+<p class="foot">4 公開デモ ・ 15〜22分</p>
 <aside>【15:30】この5つをこれから実演する、と予告。1が「作る場所」、2と3が「試す場所」、4が「公開する場所」。「index.html」は「最初に開かれるファイルの決まった名前」と説明する。</aside>
 </section>
 <section id="demo2" class="dark" data-transition="fade">
@@ -379,14 +455,49 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <li>出てきたURLを開く（タブ④）</li>
 <li>スマホで開いて、ホーム画面に追加する</li>
 </ol>
-<p class="foot">4 公開デモ ・ 15〜23分</p>
+<p class="foot">4 公開デモ ・ 15〜22分</p>
 <aside>【16:00】7分のデモ。切り替えるたびに「今はタブ②、Geminiです」と声に出す。
 1) タブ②：おみやげ2のプロンプトを貼って送信。生成を待たず「できあがったものがこちら」と事前に作った会話へ。
 2) 試す：ダウンロードしたindex.htmlをダブルクリックで開き、メモを1件書いて動きを確かめる。「今はまだ自分のパソコンの中だけ。誰にも見えていません」と言う。
 3) タブ③：index.htmlを入れたフォルダをドラッグ。URLが出たら読み上げる。
 4) タブ④：URLを開く。さっき試しに書いたメモは出てこない。「URLが違うので別の引き出し」と仕組みの話につなげる。
 5) スマホ：実機をカメラに見せ、ホーム画面のアイコンから開く。
-うまくいかない時は事前に公開済みのURLに切り替える。23分になったら途中でもスライドへ戻る。</aside>
+うまくいかない時は事前に公開済みのURLに切り替える。22分になったら途中でもスライドへ戻る。</aside>
+</section>
+<section id="tools" data-transition="fade">
+<div class="head">
+<p class="eyebrow">5 ・ 次の一歩</p>
+<h2>複雑なアプリは、作り方が変わる</h2>
+</div>
+<table>
+<tr class="thead"><th class="c20">会社</th><th class="c40">チャットで作る（今日の方法）</th><th class="c40">開発用の道具</th></tr>
+<tr><td>Google</td><td>Gemini</td><td>Antigravity</td></tr>
+<tr><td>Anthropic</td><td>Claude</td><td>Claude Code</td></tr>
+<tr><td>OpenAI</td><td>ChatGPT</td><td>Codex</td></tr>
+</table>
+<div class="cards">
+<div class="card"><h3>チャットで作る</h3><p class="body">会話して、できたファイルを自分で保存して公開する。1枚で済む小さなアプリ向き</p></div>
+<div class="card"><h3>開発用の道具で作る</h3><p class="body">AIがパソコンの中のファイルを直接作り、直し、試す。ファイルが多い複雑なアプリ向き</p></div>
+</div>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
+<aside>【22:00】今日の方法（チャットで作って、ダウンロードして、ドラッグで公開）は、index.html 1枚の小さなアプリにちょうどいい。ログインやデータベースが入ると、ファイルが何十個にも増え、チャットに貼ったり保存したりでは追いつかなくなる。そこで各社が出しているのが開発用の道具。AIが自分のパソコンの中のファイルを直接読み書きし、動かして確かめるところまでやる。どの会社もチャットと開発用の道具の両方を持っている。まずは今日の方法で十分、名前だけ覚えて帰ってください。</aside>
+</section>
+<section id="prodev" data-transition="fade">
+<div class="head">
+<p class="eyebrow">5 ・ 次の一歩</p>
+<h2>エンジニアは、こう作っている</h2>
+</div>
+<table>
+<tr class="thead"><th class="c20"></th><th class="c40">今日の作り方</th><th class="c40">エンジニアの作り方</th></tr>
+<tr><td>作る場所</td><td>ブラウザ（Gemini）</td><td>自分のパソコンのエディタ</td></tr>
+<tr><td>ファイル</td><td>index.html 1枚</td><td>何十、何百のファイル</td></tr>
+<tr><td>変更の記録</td><td>上書き保存</td><td>Gitで記録し、GitHubに保管</td></tr>
+<tr><td>試し方</td><td>開いて目で確かめる</td><td>自動テストも使う</td></tr>
+<tr><td>公開</td><td>フォルダをドラッグ</td><td>GitHubに送ると自動で公開</td></tr>
+</table>
+<p class="note">流れは同じ「作る → 試す → 公開する」。道具が本格的になるだけです</p>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
+<aside>【23:30】エディタ＝コードを書くための専用ソフト（VS Codeなど）。エンジニアは自分のパソコン（ローカル）で作って試し、Gitで「いつ何を変えたか」を記録して、GitHubに送る。送ると自動で公開される仕組みを組んでいることが多い。ここで伝えたいのは、道具は違っても「作る→試す→公開する」の3つの場所は同じだということ。今日の基本は、本格的な開発でもそのまま通用する。</aside>
 </section>
 <section id="words" data-transition="fade">
 <div class="head">
@@ -402,7 +513,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <tr><td>エラー</td><td>失敗ではなく、AIに貼る材料</td></tr>
 <tr><td>GitHub</td><td>コードの保管庫（今日は使いません）</td></tr>
 </table>
-<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
 <aside>【23:00】全部は読まない。今日のデモに出てきた言葉だけ指して振り返る。1分で次のクイズへ。</aside>
 </section>
 <section id="quiz" data-transition="fade">
@@ -415,7 +526,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <div class="q"><p class="qt">「デプロイ」とは？<br>A：アプリを公開すること　　B：アプリを削除すること</p><p class="ans fragment">答えは A</p></div>
 <div class="q"><p class="qt">エラーが出たら、どうする？<br>A：あきらめる　　B：そのままAIに貼る</p><p class="ans fragment">答えは B</p></div>
 </div>
-<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
 <aside>【24:00】クリックするたびに答えが1つずつ出る。1問ずつ読み上げ、チャットの回答を待ってからクリック。全員正解を一緒に喜ぶ。3問で2分。</aside>
 </section>
 <section id="care" data-transition="fade">
@@ -428,7 +539,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <div class="card"><span class="ic xicon" aria-hidden="true">🔗</span><p class="label">約束 2</p><h3>URLは変えない</h3><p class="body">変えるとメモが見えなくなる</p></div>
 <div class="card"><span class="ic xicon" aria-hidden="true">📒</span><p class="label">約束 3</p><h3>大事なメモは書き出す</h3><p class="body">機種変更の前にバックアップ</p></div>
 </div>
-<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
 <aside>【26:00】メモは端末の中にあるので、守るのは自分。ローカルストレージの弱点への対策を3つ。おみやげ2のプロンプトには「書き出しボタン」を入れてあると伝える。1分で。</aside>
 </section>
 <section id="gift1" data-transition="fade">
@@ -443,7 +554,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <p>最後に「誰が・何のために・できること・やらないこと」でまとめてください。</p>
 </div>
 <p class="note">配布ガイドからコピーして、Geminiに貼るだけ</p>
-<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
 <aside>【27:00】ここで配布ガイドのURLをZoomのチャットに貼る。プロンプトはガイドの「コピー」ボタンで写せる。「メモ帳アプリ」の部分を変えれば、ほかのアプリにも使えると伝える。</aside>
 </section>
 <section id="gift2" data-transition="fade">
@@ -460,7 +571,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <p>■ 画面　■ できること　■ データ　■ 決まりごと（そのまま使う）</p>
 </div>
 <p class="note">書き換えるのは【　】の3か所だけ。全文は配布ガイドの「3 作る」にあります</p>
-<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
 <aside>【28:00】デモで使ったのと同じプロンプト。書き換えるのは最初の3行だけ、と強調する。「■ 画面」「■ できること」「■ データ」は仕組みで話した3つの部品と同じ並びで、仕様書がそのままプロンプトになっている。決まりごとは、1枚だけ＝公開が簡単、画像なし＝失敗しにくい。</aside>
 </section>
 <section id="gift3" data-transition="fade">
@@ -474,13 +585,13 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 <p>私が次にやることを1つだけ教えてください。</p>
 </div>
 <p class="lead">エラーは失敗ではありません。そのまま貼ればAIが一緒に直します</p>
-<p class="foot">5 単語とおみやげ ・ 23〜30分</p>
+<p class="foot">5 次の一歩とおみやげ ・ 22〜30分</p>
 <aside>【28:45】「わからない言葉が出たら、まずこれ」。今日いちばん使うのはこの3つ目かもしれません、と伝える。</aside>
 </section>
 <section id="closing" class="dark" data-transition="fade">
 <div class="head">
 <p class="eyebrow">まとめ</p>
-<h2>今日の地図</h2>
+<h2>アプリができるまでの流れ</h2>
 </div>
 <div class="steps">
 <div class="step"><p class="num">1</p><h3>アイデア</h3><p class="body">作りたいものを<br>一言で</p></div>
@@ -491,7 +602,7 @@ table{width:100%;font-size:34px;color:#1F2A37;}
 </div>
 <p class="lead">今夜、おみやげのプロンプトを1つ試してみてください</p>
 <p class="foot">まとめ ・ 29〜30分</p>
-<aside>【29:00】地図を左から右へ読み上げて締める。「できたらSlackやチャットでURLを見せてください」と呼びかけ、後半のパートへつなぐ。</aside>
+<aside>【29:00】流れを左から右へ読み上げて締める。「できたらSlackやチャットでURLを見せてください」と呼びかけ、後半のパートへつなぐ。</aside>
 </section>
 </div>
 <div id="notes"></div>
